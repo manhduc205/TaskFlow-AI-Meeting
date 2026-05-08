@@ -1,0 +1,7 @@
+# Bỏ qua các thư mục nặng không cần thiết khi build
+models/
+test_audio/
+venv/
+.git/
+__pycache__/
+*.pyc
