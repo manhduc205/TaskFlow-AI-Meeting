@@ -1,0 +1,488 @@
+ Xin chào các bạn!
+ Một vài tuần trước, mình có làm một cái video
+ để có thể hướng dẫn các bạn cách để tự cố
+ tự mình xây dựng một Rock Chatbot
+ oan toàn từ A đến Z
+ với framework Blanchain
+ Mình cảm thấy rất là may mắn khi mà
+ video này của mình đã nhận được rất nhiều sự ủng hộ
+ cũng như là quan tâm đến từ các bạn
+ và mình rất hy vọng rằng nó đã
+ có thể mang lại cho các bạn những cái góc nhìn
+ những cái kiến thức cơ bản nhất
+ quan trọng nhất về việc
+ là làm sao để các bạn có thể tự mình
+ Xây dựng một Rack Chatbot thông qua lập trình
+ Con Rack Chatbot
+ Mà chúng ta đã cùng nhau xây dựng
+ Là một phiên bản vô cùng cơ bản
+ Vô cùng đơn giản
+ Con Rack Chatbot này đã giúp cho chúng ta
+ Có thể sử dụng các mùa ngôn ngữ lớn
+ Để có thể trả lời câu hỏi của người dùng
+ Dựa trên dữ liệu riêng của chúng ta
+ Tuy nhiên, do đây vẫn còn là một mùa hình cơ bản
+ Thế nên là nó vẫn còn tồn tại
+ Một vài những nhược điểm
+ Một vài những hạn chế
+ Và chúng ta sẽ cần phải khắc phục và cải thiện
+ Để làm sao giúp cho chất lượng của câu trả lời từ Rack Chatbot trở nên tốt hơn
+ Do đó, hôm nay trong video này
+ Chúng ta sẽ cùng nhau xây dựng một Rack Chatbot phiên bản cao cao hơn
+ Khắc phục đủ những nhược điểm mà con Rack Chatbot ở phiên bản trước còn gặp phải
+ Với những bạn nào mà các bạn chưa xem video trước của mình
+ Thì để cho các bạn đỡ mất thời gian, các bạn phải ngồi các bạn xem lại
+ Thì bên này sẽ tóm rắn nhanh cho các bạn với dụng chính của video đó các bạn nhé
+ Đầu tiên, Rack là gì?
+ RAP là từ viết tắt của Retriever Almond Generation
+ RAP là một kỹ thuật vô cùng phổ biến trong AI hiện đại
+ để giúp cho các mọi ngôn ngữ lớn có khả năng trả lời câu hỏi của người dùng
+ dựa trên dữ liệu riêng của chúng ta, dựa trên dữ liệu riêng của công ty, của doanh nghiệp
+ thay vì dựa trên các kiến thức mà các mọi ngôn ngữ lớn được góp lợi từ trước
+ hay là dựa trên các tài liệu, các thông tin mà chúng có thể tìm thấy trên mạng
+ Đây là workflow của một RAP chatbot điển hình
+ Đầu tiên thì tài liệu hay là dữ liệu riêng của chúng ta sẽ được thực hiện chunking để có thể chia nhỏ thành các cái đoạn có kỹ thức nhỏ hơn được gọi là các chunks
+ Sau đó các cái chunk này sẽ được một emmending model mạng hóa thành các emmending vector có độ dài cố định
+ Tiếp theo, các emmending vector được tạo ra sẽ được lưu trữ trong một vector database để phục vụ quá trình tìm kiếm và truy xuất sau này
+ Toàn bộ quá trình vừa rồi sẽ được thực hiện trước khi mà người dùng bắt đầu sử dụng chatbot
+ Sau này, khi mà người dùng sử dụng chatbot thông qua việc đặt câu hỏi
+ Thì câu hỏi của người dùng cũng sẽ được emmending model mạng hóa thành vector
+ Có cùng kích thước với các emmending vector mà chúng ta đã mạng hóa ở bước trước
+ Vector của câu hỏi này sẽ được so sánh với tất cả các emmending vector trong vector database
+ Để chúng ta có thể tìm ra được xem đâu là những emmending vector tương đồng nhất với vector câu hỏi này
+ Những trang tài liệu mà tương ứng với các MEDIN VETOR tương ống chất đó
+ Người ta gọi là CONTEXT hay là ngữ cảnh
+ Và tiếp theo thì chúng ta sẽ xây dựng lên một cái PROM được tạo ra từ câu hỏi của người dùng
+ Kết hợp với ngữ cảnh đó
+ Và cuối cùng PROM này sẽ được cho qua 10 ngôn ngữ lớn
+ Để có thể tạo ra câu trả lời trả ngược về cho người dùng
+ Đó là về lý thuyết
+ Còn bây giờ chúng ta sẽ cùng nhau đi qua lại thật nhanh về đoạn code xây dựng ROTCHAPORT
+ mà chúng ta đã cùng nhau xây dựng trong video lần trước
+ Đây chính là đoạn code đó
+ Ở đầu của đoạn code
+ chúng ta có một vài dòng import
+ những package cần thiết trong langtrain
+ Giờ chúng ta sẽ vào phần chính của chương trình
+ Ở ngay đầu tiên
+ chúng ta có một cái hàm
+ là load environment
+ Hôm nay dùng để làm gì?
+ Hôm nay dùng để đọc vào các biến môi trường
+ mà chúng ta định nghĩa
+ trong file environment
+ mà cụ thể trong đoạn chương trình này
+ chúng ta đọc vào biến môi trường
+ là OpenAI API Key
+ Nếu không có cái biến này
+ chúng ta sẽ không thể nào sử dụng các cái mô hình
+ của OpenAI được
+ Sau đó, chúng ta sẽ tiến hành đọc tài liệu
+ thông qua việc sử dụng Class
+ Projectory Loader
+ Chúng ta sẽ đọc vào tất cả các cái file PDF
+ có trong thư mục Papers
+ Trong ví dụ của chúng ta
+ chúng ta có 2 file PDF
+ mà mình đã sử dụng ChatGBT
+ để có thể tạo ra
+ và mình đặt trong thư mục Papers
+ Lý do vì sao mình dùng ChatGBT
+ để mình tạo ra 2 cái file này
+ để mình đảm bảo rằng đây là những cái thông tin
+ mà chúng ta sẽ không bao giờ chúng ta có thể tìm được
+ ở bất kỳ một cái nguồn nào khác trên mạng
+ Sau đó, chúng ta sẽ bắt đầu tiến hành
+ chunking để có thể chia nhỏ
+ các cái tài liệu của chúng ta, ra hành các đặc trang
+ có kế thức nhỏ hơn, thông qua việc
+ sử dụng class Recursive Character
+ TextSplitter của lăng trên
+ Ở đoạn này, mình sử dụng
+ một cái tham số là
+ Separators, và mình gá cho nó một cái giá trị
+ bằng Markdown Separators
+ Là một cái list mà mình đi nghĩa ở trên
+ Cái list này có ý nghĩa gì?
+ List này chính là danh sách có lối tự
+ Các cái mốc ưu tiên mà chúng ta muốn dựa vào chúng
+ Để chúng ta có thể phân chia tài liệu
+ Phân chia văn bản chúng ta ra thành cái đoạn có ký tức nhỏ hơn
+ Ý tưởng là chúng ta sẽ cố gắng cắt ở những chỗ nào mà nó đẹp
+ Nó tự nhiên trước
+ Thay vì việc là cắt bừa bãi
+ Cắt ở giữa câu
+ Hay đậu trí là cắt ở giữa một từ
+ Ví dụ, ngay ở dòng đầu tiên
+ Chúng ta chỉ ra là chúng ta muốn ưu tiên tách văn bản, tách tài liệu
+ ra các đặc trang dựa theo các tiêu đề
+ Ví dụ một số thang nó là tiêu đề 1
+ Nó có thể là tiêu đề dành cho các trường hiển hạn
+ Còn 2 số thang có thể là tiêu đề dành cho phần
+ 3 số thang là tiêu đề dành cho đoạn
+ Cứ tiếp tục như vậy
+ Kế tiếp
+ Sau khi chúng ta đã phân chia xong các tài liệu của chúng ta
+ Thành các đặc trang có kỹ thuật nhỏ hơn rồi
+ Chúng ta sẽ sử dụng một cái embedding model của OpenAI
+ để có thể số hóa các đặc trang này thành các cái vector có độ dài cố định
+ rồi chúng ta sẽ lưu trữ tất cả chúng trong một cái vector database
+ Bước tiếp theo, chúng ta sẽ cấu hình một cái retriever như này
+ để sau này giúp chúng ta tìm ra các cái đặc trang phù hợp nhất với mỗi một câu hỏi của người dùng
+ Phần tiếp theo, chúng ta định nghĩa một cái template như này
+ Đây chính là cái template cho cái Chrome chúng ta
+ sau này chúng ta sẽ dùng để chúng ta đưa vào trong một hình ngôn ngựa lớn
+ Trong thêm đếp này chúng ta sẽ cần phải định nghĩa xem là cái vai trò của con chatbot nó là cái gì
+ Nó cần tuân theo những cái quy tắc như thế nào
+ Câu hỏi của người dùng là gì
+ Và nó phải dựa vào cái ngữ cảnh nào để nó có thể trả lời
+ Ngữ cảnh này chính là những cái đoạn trăng mà chúng ta đã tìm ra được ở phần trên thông qua ReTriever
+ Sau khi đã có Chrome rồi
+ Chúng ta sẽ khởi tạo một cái môi ngữ lớn
+ Rồi sau đó chúng ta sẽ kết hợp tất cả các cái thành phần mà chúng ta đã định nghĩa từ nãy giờ
+ thành một cái chain, thành một cái chuỗi như thế này
+ Cách mà cái drag chain này hoạt động
+ rất là đơn giản thôi
+ Câu hỏi của người dùng sẽ được sử dụng
+ làm cái trường question
+ Và câu hỏi đó sẽ được cho qua retriever
+ để retriever nó sẽ
+ tìm ra đâu là cái chăng
+ phù hợp nhất với câu hỏi này
+ và chúng sẽ được kết hợp lại để thành một cái context
+ một cái ngữ cảnh
+ Sau đó thì cả câu hỏi và ngữ cảnh
+ sẽ được cho qua cái prompt
+ mà chúng ta đã định nghĩa template ở trên
+ Sau đó thì cái prompt này được cho qua
+ môi ngôi ngựa lớn, để môi ngôi ngựa lớn
+ hãy xin ra câu trả lời, và câu trả lời này
+ sẽ được trả về cho người dùng
+ cuối cùng, mình tạo ra một cái vòng lập
+ đơn giản như thế này, để cho phép người dùng
+ có thể liên tục đặt ra câu hỏi
+ để chatbot trả lời
+ đến khi nào mà người dùng gõ
+ cái dòng chữ là exit, thì con chatbot
+ nó sẽ kết thúc, nó sẽ không chạy nữa
+ vừa rồi chính là đoạn code về chatbot
+ chúng ta đã cùng nhau xây dựng trong video lần trước
+ giờ, chúng ta hãy cùng nhau
+ phân tích những cái nhược điểm
+ những cái hạn chế của con chatbot này
+ Thông thường, khi xây dựng một Rack Chatbot, người ta hay có xu hướng tập trung vào 2 thành phần trong cái pipeline này
+ Thành phần đầu tiên là LMM
+ Lý do thì cũng rất là đơn giản thôi, tại vì đây là nơi sẽ sinh ra câu trả lời để có thể trả về cho người dùng
+ Thành phần thứ 2 mà người ta thường dành nhiều sự chú ý, đó là Vector Database
+ Tại vì đây là nơi mà chúng ta sẽ lưu trữ các cái embedding vector của các cái chunks
+ Cũng như là sau này thực hiện truy xuất để có thể tìm kiếm được những cái embedding vector
+ Nó tương đồng nhất với vector câu hỏi của người dùng
+ Tuy nhiên, có một bước mà vai trò của nó cũng quan trọng không kém gì hay thành phần mùa rồi
+ Nhưng mà người ta thường lại hay ít nói về nó
+ Đó chính là bước chunking
+ Các bạn cứ tưởng tượng, bước chunking này cũng giống như là chúng ta đang tạo ra các cái viên gạch để xây nhà vậy
+ Bước này mà tồi thì chúng ta sẽ tạo ra các viên ngạch kém chất lượng
+ Mà một khi các viên ngạch đã kém chất lượng rồi
+ Thì bất kể kỹ sư có giỏi đến mấy
+ Thợ xây có lành nghề đến mấy
+ Si măng, vôi vữa, vật liệu có tốt đến mấy
+ Hay là bản vẽ có tuyệt vời đến mấy đi chăng nữa
+ Thì chúng ta cũng không thể là chúng ta tạo ra được một căn nhà tốt
+ Một căn nhà bền vững được
+ Các trăng được tạo ra từ bước trăng kinh này
+ Sau này nó sẽ là nguyên liệu trực tiếp
+ Để các môi ngó ngữ lớn có thể dựa vào đó
+ để có thể trả lời câu hỏi của người dùng
+ Các trăng mà tốt, toàn vẹ
+ chứa đầy đủ thông tin
+ thì chúng ta sẽ có cái nguyên liệu đổ vào tốt
+ cho LMS của chúng ta
+ và khả năng cao là LMS sẽ đưa ra
+ câu trả lời nó đầy đủ, nó tròn vẹn hơn
+ và ngược lại, nếu mà các trăng nó tồi
+ nó bị thiếu thông tin
+ thì khả năng rất là cao là cái câu trả lời
+ của LMS nó cũng sẽ bị ảnh hưởng
+ một cách tiêu cực. Giờ chúng ta hãy quay trở lại
+ với đoạn code xây dựng Ratchetbot
+ mà chúng ta đã xây dựng trong video lần trước
+ Hiện tại chúng ta đang sử dụng Recursive Character Text Spitter
+ Đây là một kỹ thuật trăng ký đơn giản
+ Sẽ phân chia tài liệu của chúng ta
+ Chủ yếu dựa vào độ dài của các đoạn trăng
+ Như trong trường hợp cụ thể này của chúng ta
+ Mỗi đoạn trăng sẽ có độ dài
+ Cung vượt quá 1.200 ký tự
+ Để cho các bạn dễ ảnh dung
+ Mình sẽ cho các bạn một cái ví dụ
+ Với đoạn text đầu vào là bằng tiếng Việt
+ Giờ chúng ta có một cái đoạn text như thế này
+ Nội dung ra là
+ Phần 3.2 này
+ Cơ chế Attention trong Transformer
+ Attention cho phép mỗi token nhìn vào
+ Tất cả các token khác để hiểu ngữ cảnh
+ Thì đây là cái đoạn text được vào của chúng ta
+ Và bây giờ chúng ta hãy thử xem là nếu chúng ta
+ Dùng Recursive Character Text Feature
+ Để có thể phân tách
+ Đoạn text này thành các cái trang
+ Thì kết quả nó trông như thế nào
+ Nếu mình thiết lập trang size là bằng
+ 90 và đoạn overlap
+ Là bằng 15 ký tự
+ Có nghĩa là gì? Có nghĩa là mỗi đoạn trang
+ Có độ dài tối đa là 90 ký tự
+ Và đoạn trùng lập
+ Giữa 2 đoạn trang liên tiếp nhau sẽ là 15 ký tự
+ Thì chúng ta sẽ có cái kết quả
+ Là như các bạn có thể nhìn thấy ở phía bên phải này
+ Đúng không? Đây là xác các cái trang
+ Được tạo ra
+ Tổng cộng chúng ta sẽ có 8 cái trang
+ Mỗi một cái trang, các bạn nhìn đây
+ Trang 1, trang 2, trang 3, trang 4 này đúng không?
+ Chúng nó đều có những độ dài là
+ 90 ký tự và các bạn có thể thấy là gì?
+ Là một vài ký tự
+ Cuối cùng của cái trang trước
+ Nó sẽ trùng lập với một vài
+ Những ký tự của cái trang sau
+ Tại vì chúng ta đã thiết lập là overlap
+ 15 ký tự rồi
+ Mình sẽ kéo xuống dưới để chúng ta có thể xem được nội dung
+ Của các cái trang còn lại
+ Đây các bạn thấy không, chúng ta có 8 trang
+ Trang cuối thì nó sẽ có
+ Ít ký tự hơn so với những cái trang khác
+ Tại vì chúng ta đã kết thúc văn bản ở đây rồi
+ Chỉ nhìn qua thôi, các bạn cũng có thể thấy ngay được
+ Một vài những nhược điểm rất là rõ ràng
+ Của cách tiếp cận này đúng không
+ Các cái đạo trang của chúng ta bắt đầu và kết thúc
+ Một cách không trọn vẹn
+ Đây các bạn thấy không, đầu này bắt đầu
+ Nó chả có ý nghĩa gì cả đâu
+ Nó bị thiếu mất chữ V ở phía trước
+ Đúng không?
+ Và cái kết thúc đây đúng không?
+ Vì xử lý chẳng chỉ có mỗi chữ L thôi
+ Nó không có cái chữ Y nữa
+ Tại vì là nó bị sang cái trăng tiếp theo rồi
+ Các đoạn trăng không đầu không đuôi này
+ Thứ nhất là nó không chọn vẹn về mặt ý nghĩa
+ Và thứ hai là nó không chọn vẹn về mặt cấu trúc
+ Và các bạn nhìn nhé
+ Trong cái đoạn text đầu vào của chúng ta
+ Chúng ta có một cái bảng như này
+ Đúng không?
+ Nhưng mà khi mà chúng ta
+ Sử dụng
+ Recursive Character Text Writer
+ Để chúng ta chia thành các cái đoạn trang ấy
+ Thì các bạn thấy không
+ Có một phần của cái bảng nó rơi vào cái trang trước
+ Và một phần của cái bảng nó rơi vào cái trang sau
+ Tức là mỗi một cái trang nó đều không lưu trữ trọn vẹn thông tin về cái bảng này
+ Tất cả những cái sự không trọn vẹn, không đầy đủ này
+ Sau này nó sẽ khiến cho cái môi ngôi ngôi lớn của chúng ta
+ Nếu nó phải dựa vào các cái trang này để tạo ra câu trả lời
+ Thì cái câu trả lời nó cũng sẽ không được đầy đủ, không được trọn vẹn
+ Sau khi đã nói về những cái nhược điểm
+ Cũng như là hạn chế của phố bác trang kinh hiện tại rồi
+ Chúng ta sẽ cùng nhau nói về cách để chúng ta có thể khắc phục những trường điểm này
+ Đầu tiên, chúng ta sẽ nói về một kỹ thuật có tên là Semantic Trang Kinh
+ Hay là cắt văn bản dựa theo ngữ nghĩa
+ Semantic Trang Kinh sẽ giúp chúng ta có thể cắt văn bản dựa trên sự thay đổi về mặt ngữ nghĩa của nội dung
+ Chứ không còn dựa vào số lượng ký tự nữa
+ Như các bạn có thể nhìn thấy, đây là luồng hoạt động của Semantic Trang Kinh
+ Đầu tiên thì Seminary Trang King sẽ tách văn bản của chúng ta
+ Thành các cái câu đơn lẻ dựa vào các cái dấu câu
+ Ví dụ như là dấu chấm, dấu chấm than hay là dấu hỏi chấm
+ Sau đó chúng ta sẽ sử dụng một cái emitting model
+ Để có thể số hóa cái câu này
+ Mỗi câu thành một cái emitting vector có độ dài cố định
+ Ở với tiếp theo chúng ta sẽ cần phải tính toán được sự tương đồng về mặt ý nghĩa
+ Giữa hai câu liên tiếp nhau
+ thông qua tính toán cosi CMYT giữa 2 emmating vector của chúng.
+ Chúng ta sẽ tính toán như vậy với tất cả các cặp câu liên tiếp nhau trong văn bản của chúng ta.
+ Sau đó, chúng ta sẽ so sánh tất cả các cái giá trị cosi CMYT
+ mà chúng ta vừa tính được với một cái giá trị ngưỡng nào đó.
+ Ví dụ ngưỡng của chúng ta là 0,85 chẳng hạn.
+ Thì nếu mà cái giá trị cosi CMYT giữa một cặp 2 câu liên tiếp nhau
+ Mà vượt trên cái ngưỡng này
+ Thì có nghĩa là 2 câu này
+ Vẫn tương đục nhau về mặt ý nghĩa
+ Và ngược lại, nếu mà cái giá trị
+ Câu size similarity giữa 2 câu liên tiếp nhau
+ Nó dưới 1 cái ngưỡng
+ Có nghĩa là đã có cái sự thay đổi về mặt ý nghĩa
+ Giữa câu đầu và câu thứ 2 rồi
+ Và 1 khi đã có sự thay đổi về mặt ý nghĩa rồi
+ Thì chúng ta sẽ thể hiện tách tại đây
+ Thế là gì? Thế là cái câu đầu tiên
+ Thì sẽ thuộc về trăng trước
+ Trong khi câu thứ 2 sẽ thuộc về trăng sau
+ Như trong ví dụ này của chúng ta
+ Giả sử chúng ta có 5 câu đi chẳng hạn
+ Đúng không?
+ Thì chúng ta thấy là
+ Khi chúng ta tính ra cái câu sai ximity
+ Chúng ta thấy là
+ Câu sai ximity giữa câu 1 và câu 2
+ Hay là giữa câu 2 và câu 3
+ Nó vượt qua cái ngưỡng là 0.785
+ Thế nhưng mà cái câu sai ximity
+ Giữa câu 3 và câu 4
+ Nó dưới 0.785
+ Và câu sai ximity giữa câu 4 và câu 5
+ Nó lại vượt trên 0.785
+ Thế thì khi chúng ta tách
+ Chúng ta sẽ tách là
+ Câu 1, câu 2, câu 3
+ Vào 1 trang
+ Và câu 4 và câu 5
+ sẽ thuộc về một trang thứ 2
+ Ok, đó là lý thuyết
+ Thế còn bây giờ, chúng ta sẽ trừ qua phần thực hành
+ Để có thể sử dụng được
+ CMT Trang Cơ trong cái đoạn code của chúng ta
+ thì chúng ta sẽ cần phải thêm vào một cái dòng import như thế này
+ For
+ Lightchain
+ Experimental
+ Text Twitter
+ Import
+ Cmantic Trang Cơ
+ Ok, đây là câu import
+ Và ở phía dưới, chúng ta sẽ
+ thay thế cái
+ text filter hiện tại
+ bằng cái
+ semi-trancer mà chúng ta vừa mới import
+ text filter
+ bằng text
+ trăncer như này
+ ok, và sau chúng ta sẽ cần phải
+ chỉ ra một vài những tham số quan trọng
+ tham số đầu tiên
+ chúng ta sẽ cần phải chỉ ra là chúng ta sẽ
+ emetting các câu của chúng ta
+ bằng mô hình gì
+ vì do là ở phía sau chúng ta sẽ sử dụng
+ emetting model của OpenAI
+ nên ở đây chúng ta cũng có thể chúng ta sẽ dùng luôn
+ MADING model của OpenAI luôn
+ Chúng ta sẽ chỉ là MADING
+ OpenAI
+ MADING như thế này
+ Đây, thì đây chính là tham số đầu tiên mà chúng ta sẽ phải chỉ ra
+ Khi chúng ta sử dụng Semantic Trunker
+ Tham số thứ 2 mà chúng ta cần phải chỉ ra
+ Đó chính là cái ngưỡng
+ Dành cho COSILE SIMULITY
+ Mà chúng ta muốn thiết lập để có thể cắt câu
+ Có nghĩa là nếu mà COSILE SIMULITY
+ Giữa 2 cái câu liên tiếp
+ Nó dưới cái ngưỡng này
+ Chúng ta sẽ cắt trăng tại đây
+ Thì cái tham số này nó có tên là
+ Breakpoint
+ Threshold
+ Amount
+ Mình sẽ thiết lập bằng 0.785
+ Có nghĩa là câu size 70D giữa 2 câu liên tiếp
+ Mà dưới 0.785 thì tôi sẽ cắt
+ Thành 2 cái trang
+ Cái câu đầu tiên thuộc về cái trang trước
+ Cái câu thứ 2 thuộc về cái trang sau
+ Vậy là so với chương trình cũ
+ Thì ở trong chương trình mới này
+ Chúng ta chỉ thay đổi duy nhất 1 chỗ
+ Đó là thay vì chúng ta sử dụng
+ Recursive Character Text Feeder
+ Thì mình chúng ta sẽ sử dụng
+ Semishanker
+ Còn những chỗ khác chúng ta vẫn giữ nguyên như vậy
+ Sau đó thì các bạn có thể hoàn toàn
+ các bạn chạy lại con chatbot này để các bạn xem
+ là cái câu trả lời mới
+ khác gì với câu trả lời cũ
+ Như các bạn có thể thấy, đây là demo
+ khi chúng ta sử dụng Semlish Trunker
+ vẫn với đoạn text đầu vào như ví dụ trước
+ Các bạn có thể thấy là
+ các cái trang được cắt ra
+ chúng nó đã được tảo toàn
+ về mặt ý nghĩa và không còn cái hiện tượng
+ là các cái trang nó bắt đầu
+ hay là kết thúc một cách lưng chừng
+ Bây giờ mỗi một cái trang ra nó đều là những cái nội dung
+ hoàn chỉnh và các cái câu
+ trong cùng một trang thì chúng nó sẽ
+ Tương đồng với nhau về mặt ý nghĩa
+ Và các bạn có thể thấy là gì?
+ Là cái bảng của chúng ta bây giờ nó không bị
+ Cắt lẻ ra ở giữa nữa
+ Mà bây giờ thì toàn bộ cái bảng của chúng ta
+ Nó đã rơi vào trong một cái trang hoàn chỉnh
+ Đây là kết quả của 2 phương pháp trang kinh
+ Khi chúng ta đặt chúng bên cạnh nhau
+ Bên trái là
+ Requisite Character Texts Peter
+ Và bên phải là Semantic Trangker
+ Các bạn có thể thấy được sự khác biệt
+ Rõ ràng về mặt chất lượng
+ Của các cái đoạn trang giữa 2 phương pháp này
+ Đúng không? Nhìn chung thì trong phần lớn các trường hợp
+ Thì sử dụng Semitic Trangger
+ Nó sẽ tốt hơn nhiều
+ Do với dụng Recursive Cater-Tex-Speaker
+ Tại vì nó bảo toàn được thông tin về mặt ngữ nghĩa
+ Chúng ta sẽ không còn những cái trang không đầu
+ Không đuôi hay là không rõ ràng về mặt ý nghĩa nữa
+ Nói đi thì cũng phải nói lại
+ Chúng ta nói rất nhiều
+ Về những ưu điểm của Semitic Trangger rồi
+ Thì chúng ta cũng nên nói qua một chút
+ Về nhược điểm của nó
+ Nhược điểm dễ dàng nhất của Semitic Trangger
+ Đó chúng ta sẽ phải tốn thêm một cái bước
+ Để chúng ta thể hiện embedding cho các cái câu
+ Do đó thì
+ Nếu chúng ta sử dụng API thì các bạn sẽ phải trả thêm tiền
+ Còn nếu mà chúng ta tự host các cái nguồn hình embedding
+ Thì các bạn cũng sẽ tốn những thời gian để có thể embed các cái câu
+ Recursive hay là Seventic Trunking
+ Chỉ là 2 trong số rất nhiều các kỹ thuật Trunking thường được sử dụng trong Rack
+ Ngoài 2 kỹ thuật này ra
+ Chúng ta còn có rất nhiều các kỹ thuật Trunking khác
+ Từ cơ bản đến nâng cao
+ Mỗi kỹ thuật đã có những cái ưu điểm, nhược điểm của riêng mình
+ Và chúng sẽ thường được sử dụng trong các trường hợp khác nhau
+ Với những loại dữ liệu khác nhau
+ Với các cái use case khác nhau
+ Trong thời gian tới
+ Mình sẽ làm một cái video
+ Để có thể tổng hợp và hệ tổng hóa
+ Tất cả các kỹ thuật chunking phổ bệnh nhất
+ Thường được dựa trong Rack
+ Mình hy vọng là những video về chủ đề Rack này
+ Sẽ giúp cho bạn có thể trang bị được cho mình
+ Những kỹ thức cơ bản và cần thiết nhất
+ Để các bạn có thể tự mình xây dựng
+ Inchart Bot phù cho những kỹ mục đích khác nhau
+ Vậy là hôm nay
+ Chúng ta đã cùng nhau nâng cấp cho Rack Trang Bot
+ Thông qua việc sử dụng Semic Trunker
+ Như mình đã nói
+ Trong video sau
+ Mình sẽ tổng hợp cho các bạn
+ Tất cả những kỹ thuật tracking phổ biến nhất
+ Thường được dùng trong Rack
+ Mình hy vọng là những video này
+ Sẽ được các bạn đón nhận
+ Mình rất cảm ơn các bạn
+ Đã dành đến giai đoạn của mình
+ Mình sẽ hẹn các bạn
+ Những video sau

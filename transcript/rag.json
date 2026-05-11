@@ -1,0 +1,2442 @@
+[
+  {
+    "start": 0.0,
+    "end": 0.8,
+    "text": "Xin chào các bạn!"
+  },
+  {
+    "start": 1.8,
+    "end": 3.96,
+    "text": "Một vài tuần trước, mình có làm một cái video"
+  },
+  {
+    "start": 3.96,
+    "end": 6.46,
+    "text": "để có thể hướng dẫn các bạn cách để tự cố"
+  },
+  {
+    "start": 6.46,
+    "end": 8.7,
+    "text": "tự mình xây dựng một Rock Chatbot"
+  },
+  {
+    "start": 8.7,
+    "end": 10.14,
+    "text": "oan toàn từ A đến Z"
+  },
+  {
+    "start": 10.14,
+    "end": 11.62,
+    "text": "với framework Blanchain"
+  },
+  {
+    "start": 11.62,
+    "end": 14.3,
+    "text": "Mình cảm thấy rất là may mắn khi mà"
+  },
+  {
+    "start": 14.3,
+    "end": 16.7,
+    "text": "video này của mình đã nhận được rất nhiều sự ủng hộ"
+  },
+  {
+    "start": 16.7,
+    "end": 18.28,
+    "text": "cũng như là quan tâm đến từ các bạn"
+  },
+  {
+    "start": 18.28,
+    "end": 20.5,
+    "text": "và mình rất hy vọng rằng nó đã"
+  },
+  {
+    "start": 20.5,
+    "end": 22.72,
+    "text": "có thể mang lại cho các bạn những cái góc nhìn"
+  },
+  {
+    "start": 22.72,
+    "end": 24.66,
+    "text": "những cái kiến thức cơ bản nhất"
+  },
+  {
+    "start": 24.66,
+    "end": 26.32,
+    "text": "quan trọng nhất về việc"
+  },
+  {
+    "start": 26.32,
+    "end": 28.52,
+    "text": "là làm sao để các bạn có thể tự mình"
+  },
+  {
+    "start": 28.52,
+    "end": 30.98,
+    "text": "Xây dựng một Rack Chatbot thông qua lập trình"
+  },
+  {
+    "start": 30.98,
+    "end": 32.5,
+    "text": "Con Rack Chatbot"
+  },
+  {
+    "start": 32.5,
+    "end": 34.1,
+    "text": "Mà chúng ta đã cùng nhau xây dựng"
+  },
+  {
+    "start": 34.1,
+    "end": 35.84,
+    "text": "Là một phiên bản vô cùng cơ bản"
+  },
+  {
+    "start": 35.84,
+    "end": 36.94,
+    "text": "Vô cùng đơn giản"
+  },
+  {
+    "start": 36.94,
+    "end": 40.08,
+    "text": "Con Rack Chatbot này đã giúp cho chúng ta"
+  },
+  {
+    "start": 40.08,
+    "end": 42.16,
+    "text": "Có thể sử dụng các mùa ngôn ngữ lớn"
+  },
+  {
+    "start": 42.16,
+    "end": 44.0,
+    "text": "Để có thể trả lời câu hỏi của người dùng"
+  },
+  {
+    "start": 44.0,
+    "end": 46.02,
+    "text": "Dựa trên dữ liệu riêng của chúng ta"
+  },
+  {
+    "start": 46.02,
+    "end": 49.24,
+    "text": "Tuy nhiên, do đây vẫn còn là một mùa hình cơ bản"
+  },
+  {
+    "start": 49.24,
+    "end": 50.8,
+    "text": "Thế nên là nó vẫn còn tồn tại"
+  },
+  {
+    "start": 50.8,
+    "end": 51.9,
+    "text": "Một vài những nhược điểm"
+  },
+  {
+    "start": 51.9,
+    "end": 53.26,
+    "text": "Một vài những hạn chế"
+  },
+  {
+    "start": 53.26,
+    "end": 55.48,
+    "text": "Và chúng ta sẽ cần phải khắc phục và cải thiện"
+  },
+  {
+    "start": 55.48,
+    "end": 59.8,
+    "text": "Để làm sao giúp cho chất lượng của câu trả lời từ Rack Chatbot trở nên tốt hơn"
+  },
+  {
+    "start": 59.8,
+    "end": 62.72,
+    "text": "Do đó, hôm nay trong video này"
+  },
+  {
+    "start": 62.72,
+    "end": 67.02,
+    "text": "Chúng ta sẽ cùng nhau xây dựng một Rack Chatbot phiên bản cao cao hơn"
+  },
+  {
+    "start": 67.02,
+    "end": 70.52,
+    "text": "Khắc phục đủ những nhược điểm mà con Rack Chatbot ở phiên bản trước còn gặp phải"
+  },
+  {
+    "start": 70.52,
+    "end": 73.76,
+    "text": "Với những bạn nào mà các bạn chưa xem video trước của mình"
+  },
+  {
+    "start": 73.76,
+    "end": 76.64,
+    "text": "Thì để cho các bạn đỡ mất thời gian, các bạn phải ngồi các bạn xem lại"
+  },
+  {
+    "start": 76.64,
+    "end": 80.02,
+    "text": "Thì bên này sẽ tóm rắn nhanh cho các bạn với dụng chính của video đó các bạn nhé"
+  },
+  {
+    "start": 80.02,
+    "end": 82.42,
+    "text": "Đầu tiên, Rack là gì?"
+  },
+  {
+    "start": 82.42,
+    "end": 86.91,
+    "text": "RAP là từ viết tắt của Retriever Almond Generation"
+  },
+  {
+    "start": 86.91,
+    "end": 90.87,
+    "text": "RAP là một kỹ thuật vô cùng phổ biến trong AI hiện đại"
+  },
+  {
+    "start": 90.87,
+    "end": 95.15,
+    "text": "để giúp cho các mọi ngôn ngữ lớn có khả năng trả lời câu hỏi của người dùng"
+  },
+  {
+    "start": 95.15,
+    "end": 100.93,
+    "text": "dựa trên dữ liệu riêng của chúng ta, dựa trên dữ liệu riêng của công ty, của doanh nghiệp"
+  },
+  {
+    "start": 100.93,
+    "end": 104.61,
+    "text": "thay vì dựa trên các kiến thức mà các mọi ngôn ngữ lớn được góp lợi từ trước"
+  },
+  {
+    "start": 104.61,
+    "end": 108.85,
+    "text": "hay là dựa trên các tài liệu, các thông tin mà chúng có thể tìm thấy trên mạng"
+  },
+  {
+    "start": 108.85,
+    "end": 112.28,
+    "text": "Đây là workflow của một RAP chatbot điển hình"
+  },
+  {
+    "start": 112.28,
+    "end": 122.31,
+    "text": "Đầu tiên thì tài liệu hay là dữ liệu riêng của chúng ta sẽ được thực hiện chunking để có thể chia nhỏ thành các cái đoạn có kỹ thức nhỏ hơn được gọi là các chunks"
+  },
+  {
+    "start": 122.31,
+    "end": 129.11,
+    "text": "Sau đó các cái chunk này sẽ được một emmending model mạng hóa thành các emmending vector có độ dài cố định"
+  },
+  {
+    "start": 129.47,
+    "end": 137.41,
+    "text": "Tiếp theo, các emmending vector được tạo ra sẽ được lưu trữ trong một vector database để phục vụ quá trình tìm kiếm và truy xuất sau này"
+  },
+  {
+    "start": 137.41,
+    "end": 142.47,
+    "text": "Toàn bộ quá trình vừa rồi sẽ được thực hiện trước khi mà người dùng bắt đầu sử dụng chatbot"
+  },
+  {
+    "start": 142.47,
+    "end": 147.21,
+    "text": "Sau này, khi mà người dùng sử dụng chatbot thông qua việc đặt câu hỏi"
+  },
+  {
+    "start": 147.21,
+    "end": 151.59,
+    "text": "Thì câu hỏi của người dùng cũng sẽ được emmending model mạng hóa thành vector"
+  },
+  {
+    "start": 151.59,
+    "end": 155.65,
+    "text": "Có cùng kích thước với các emmending vector mà chúng ta đã mạng hóa ở bước trước"
+  },
+  {
+    "start": 155.65,
+    "end": 161.59,
+    "text": "Vector của câu hỏi này sẽ được so sánh với tất cả các emmending vector trong vector database"
+  },
+  {
+    "start": 161.59,
+    "end": 167.29,
+    "text": "Để chúng ta có thể tìm ra được xem đâu là những emmending vector tương đồng nhất với vector câu hỏi này"
+  },
+  {
+    "start": 167.29,
+    "end": 172.05,
+    "text": "Những trang tài liệu mà tương ứng với các MEDIN VETOR tương ống chất đó"
+  },
+  {
+    "start": 172.05,
+    "end": 174.41,
+    "text": "Người ta gọi là CONTEXT hay là ngữ cảnh"
+  },
+  {
+    "start": 174.41,
+    "end": 179.85,
+    "text": "Và tiếp theo thì chúng ta sẽ xây dựng lên một cái PROM được tạo ra từ câu hỏi của người dùng"
+  },
+  {
+    "start": 179.85,
+    "end": 181.25,
+    "text": "Kết hợp với ngữ cảnh đó"
+  },
+  {
+    "start": 181.25,
+    "end": 185.94,
+    "text": "Và cuối cùng PROM này sẽ được cho qua 10 ngôn ngữ lớn"
+  },
+  {
+    "start": 185.94,
+    "end": 189.28,
+    "text": "Để có thể tạo ra câu trả lời trả ngược về cho người dùng"
+  },
+  {
+    "start": 189.28,
+    "end": 190.7,
+    "text": "Đó là về lý thuyết"
+  },
+  {
+    "start": 190.7,
+    "end": 196.41,
+    "text": "Còn bây giờ chúng ta sẽ cùng nhau đi qua lại thật nhanh về đoạn code xây dựng ROTCHAPORT"
+  },
+  {
+    "start": 196.41,
+    "end": 198.89,
+    "text": "mà chúng ta đã cùng nhau xây dựng trong video lần trước"
+  },
+  {
+    "start": 198.89,
+    "end": 200.67,
+    "text": "Đây chính là đoạn code đó"
+  },
+  {
+    "start": 200.67,
+    "end": 202.33,
+    "text": "Ở đầu của đoạn code"
+  },
+  {
+    "start": 202.33,
+    "end": 204.31,
+    "text": "chúng ta có một vài dòng import"
+  },
+  {
+    "start": 204.31,
+    "end": 206.57,
+    "text": "những package cần thiết trong langtrain"
+  },
+  {
+    "start": 206.57,
+    "end": 209.07,
+    "text": "Giờ chúng ta sẽ vào phần chính của chương trình"
+  },
+  {
+    "start": 209.07,
+    "end": 210.63,
+    "text": "Ở ngay đầu tiên"
+  },
+  {
+    "start": 210.63,
+    "end": 212.45,
+    "text": "chúng ta có một cái hàm"
+  },
+  {
+    "start": 212.45,
+    "end": 214.41,
+    "text": "là load environment"
+  },
+  {
+    "start": 214.41,
+    "end": 215.89,
+    "text": "Hôm nay dùng để làm gì?"
+  },
+  {
+    "start": 216.41,
+    "end": 219.07,
+    "text": "Hôm nay dùng để đọc vào các biến môi trường"
+  },
+  {
+    "start": 219.07,
+    "end": 220.21,
+    "text": "mà chúng ta định nghĩa"
+  },
+  {
+    "start": 220.21,
+    "end": 221.53,
+    "text": "trong file environment"
+  },
+  {
+    "start": 221.53,
+    "end": 223.77,
+    "text": "mà cụ thể trong đoạn chương trình này"
+  },
+  {
+    "start": 223.77,
+    "end": 226.09,
+    "text": "chúng ta đọc vào biến môi trường"
+  },
+  {
+    "start": 226.09,
+    "end": 228.33,
+    "text": "là OpenAI API Key"
+  },
+  {
+    "start": 228.33,
+    "end": 229.99,
+    "text": "Nếu không có cái biến này"
+  },
+  {
+    "start": 229.99,
+    "end": 231.99,
+    "text": "chúng ta sẽ không thể nào sử dụng các cái mô hình"
+  },
+  {
+    "start": 231.99,
+    "end": 233.11,
+    "text": "của OpenAI được"
+  },
+  {
+    "start": 233.11,
+    "end": 236.11,
+    "text": "Sau đó, chúng ta sẽ tiến hành đọc tài liệu"
+  },
+  {
+    "start": 236.11,
+    "end": 237.71,
+    "text": "thông qua việc sử dụng Class"
+  },
+  {
+    "start": 237.71,
+    "end": 238.97,
+    "text": "Projectory Loader"
+  },
+  {
+    "start": 238.97,
+    "end": 242.8,
+    "text": "Chúng ta sẽ đọc vào tất cả các cái file PDF"
+  },
+  {
+    "start": 242.8,
+    "end": 244.7,
+    "text": "có trong thư mục Papers"
+  },
+  {
+    "start": 244.7,
+    "end": 246.65,
+    "text": "Trong ví dụ của chúng ta"
+  },
+  {
+    "start": 246.65,
+    "end": 248.97,
+    "text": "chúng ta có 2 file PDF"
+  },
+  {
+    "start": 248.97,
+    "end": 251.05,
+    "text": "mà mình đã sử dụng ChatGBT"
+  },
+  {
+    "start": 251.05,
+    "end": 252.21,
+    "text": "để có thể tạo ra"
+  },
+  {
+    "start": 252.21,
+    "end": 253.77,
+    "text": "và mình đặt trong thư mục Papers"
+  },
+  {
+    "start": 253.77,
+    "end": 256.19,
+    "text": "Lý do vì sao mình dùng ChatGBT"
+  },
+  {
+    "start": 256.19,
+    "end": 257.67,
+    "text": "để mình tạo ra 2 cái file này"
+  },
+  {
+    "start": 257.67,
+    "end": 260.05,
+    "text": "để mình đảm bảo rằng đây là những cái thông tin"
+  },
+  {
+    "start": 260.05,
+    "end": 262.07,
+    "text": "mà chúng ta sẽ không bao giờ chúng ta có thể tìm được"
+  },
+  {
+    "start": 262.07,
+    "end": 264.46,
+    "text": "ở bất kỳ một cái nguồn nào khác trên mạng"
+  },
+  {
+    "start": 264.46,
+    "end": 266.58,
+    "text": "Sau đó, chúng ta sẽ bắt đầu tiến hành"
+  },
+  {
+    "start": 266.58,
+    "end": 268.36,
+    "text": "chunking để có thể chia nhỏ"
+  },
+  {
+    "start": 268.36,
+    "end": 270.5,
+    "text": "các cái tài liệu của chúng ta, ra hành các đặc trang"
+  },
+  {
+    "start": 270.5,
+    "end": 272.32,
+    "text": "có kế thức nhỏ hơn, thông qua việc"
+  },
+  {
+    "start": 272.32,
+    "end": 274.62,
+    "text": "sử dụng class Recursive Character"
+  },
+  {
+    "start": 274.62,
+    "end": 276.3,
+    "text": "TextSplitter của lăng trên"
+  },
+  {
+    "start": 276.3,
+    "end": 278.76,
+    "text": "Ở đoạn này, mình sử dụng"
+  },
+  {
+    "start": 278.76,
+    "end": 280.16,
+    "text": "một cái tham số là"
+  },
+  {
+    "start": 280.16,
+    "end": 282.6,
+    "text": "Separators, và mình gá cho nó một cái giá trị"
+  },
+  {
+    "start": 282.6,
+    "end": 284.38,
+    "text": "bằng Markdown Separators"
+  },
+  {
+    "start": 284.38,
+    "end": 286.68,
+    "text": "Là một cái list mà mình đi nghĩa ở trên"
+  },
+  {
+    "start": 286.68,
+    "end": 288.84,
+    "text": "Cái list này có ý nghĩa gì?"
+  },
+  {
+    "start": 289.26,
+    "end": 291.12,
+    "text": "List này chính là danh sách có lối tự"
+  },
+  {
+    "start": 291.12,
+    "end": 294.26,
+    "text": "Các cái mốc ưu tiên mà chúng ta muốn dựa vào chúng"
+  },
+  {
+    "start": 294.26,
+    "end": 296.32,
+    "text": "Để chúng ta có thể phân chia tài liệu"
+  },
+  {
+    "start": 296.32,
+    "end": 299.92,
+    "text": "Phân chia văn bản chúng ta ra thành cái đoạn có ký tức nhỏ hơn"
+  },
+  {
+    "start": 299.92,
+    "end": 304.5,
+    "text": "Ý tưởng là chúng ta sẽ cố gắng cắt ở những chỗ nào mà nó đẹp"
+  },
+  {
+    "start": 304.5,
+    "end": 305.7,
+    "text": "Nó tự nhiên trước"
+  },
+  {
+    "start": 305.7,
+    "end": 307.66,
+    "text": "Thay vì việc là cắt bừa bãi"
+  },
+  {
+    "start": 307.66,
+    "end": 308.8,
+    "text": "Cắt ở giữa câu"
+  },
+  {
+    "start": 308.8,
+    "end": 310.46,
+    "text": "Hay đậu trí là cắt ở giữa một từ"
+  },
+  {
+    "start": 310.46,
+    "end": 312.82,
+    "text": "Ví dụ, ngay ở dòng đầu tiên"
+  },
+  {
+    "start": 312.82,
+    "end": 317.04,
+    "text": "Chúng ta chỉ ra là chúng ta muốn ưu tiên tách văn bản, tách tài liệu"
+  },
+  {
+    "start": 317.04,
+    "end": 320.1,
+    "text": "ra các đặc trang dựa theo các tiêu đề"
+  },
+  {
+    "start": 320.1,
+    "end": 322.8,
+    "text": "Ví dụ một số thang nó là tiêu đề 1"
+  },
+  {
+    "start": 322.8,
+    "end": 325.72,
+    "text": "Nó có thể là tiêu đề dành cho các trường hiển hạn"
+  },
+  {
+    "start": 325.72,
+    "end": 327.74,
+    "text": "Còn 2 số thang có thể là tiêu đề dành cho phần"
+  },
+  {
+    "start": 327.74,
+    "end": 329.46,
+    "text": "3 số thang là tiêu đề dành cho đoạn"
+  },
+  {
+    "start": 329.46,
+    "end": 330.5,
+    "text": "Cứ tiếp tục như vậy"
+  },
+  {
+    "start": 330.5,
+    "end": 332.14,
+    "text": "Kế tiếp"
+  },
+  {
+    "start": 332.14,
+    "end": 336.2,
+    "text": "Sau khi chúng ta đã phân chia xong các tài liệu của chúng ta"
+  },
+  {
+    "start": 336.2,
+    "end": 338.44,
+    "text": "Thành các đặc trang có kỹ thuật nhỏ hơn rồi"
+  },
+  {
+    "start": 338.44,
+    "end": 342.32,
+    "text": "Chúng ta sẽ sử dụng một cái embedding model của OpenAI"
+  },
+  {
+    "start": 342.32,
+    "end": 346.88,
+    "text": "để có thể số hóa các đặc trang này thành các cái vector có độ dài cố định"
+  },
+  {
+    "start": 346.88,
+    "end": 351.26,
+    "text": "rồi chúng ta sẽ lưu trữ tất cả chúng trong một cái vector database"
+  },
+  {
+    "start": 351.26,
+    "end": 355.69,
+    "text": "Bước tiếp theo, chúng ta sẽ cấu hình một cái retriever như này"
+  },
+  {
+    "start": 355.69,
+    "end": 360.83,
+    "text": "để sau này giúp chúng ta tìm ra các cái đặc trang phù hợp nhất với mỗi một câu hỏi của người dùng"
+  },
+  {
+    "start": 360.83,
+    "end": 364.92,
+    "text": "Phần tiếp theo, chúng ta định nghĩa một cái template như này"
+  },
+  {
+    "start": 364.92,
+    "end": 367.36,
+    "text": "Đây chính là cái template cho cái Chrome chúng ta"
+  },
+  {
+    "start": 367.36,
+    "end": 370.04,
+    "text": "sau này chúng ta sẽ dùng để chúng ta đưa vào trong một hình ngôn ngựa lớn"
+  },
+  {
+    "start": 370.04,
+    "end": 375.66,
+    "text": "Trong thêm đếp này chúng ta sẽ cần phải định nghĩa xem là cái vai trò của con chatbot nó là cái gì"
+  },
+  {
+    "start": 375.66,
+    "end": 378.6,
+    "text": "Nó cần tuân theo những cái quy tắc như thế nào"
+  },
+  {
+    "start": 378.6,
+    "end": 381.83,
+    "text": "Câu hỏi của người dùng là gì"
+  },
+  {
+    "start": 381.83,
+    "end": 384.89,
+    "text": "Và nó phải dựa vào cái ngữ cảnh nào để nó có thể trả lời"
+  },
+  {
+    "start": 384.89,
+    "end": 390.47,
+    "text": "Ngữ cảnh này chính là những cái đoạn trăng mà chúng ta đã tìm ra được ở phần trên thông qua ReTriever"
+  },
+  {
+    "start": 390.47,
+    "end": 393.42,
+    "text": "Sau khi đã có Chrome rồi"
+  },
+  {
+    "start": 393.42,
+    "end": 396.78,
+    "text": "Chúng ta sẽ khởi tạo một cái môi ngữ lớn"
+  },
+  {
+    "start": 396.78,
+    "end": 400.44,
+    "text": "Rồi sau đó chúng ta sẽ kết hợp tất cả các cái thành phần mà chúng ta đã định nghĩa từ nãy giờ"
+  },
+  {
+    "start": 400.44,
+    "end": 402.86,
+    "text": "thành một cái chain, thành một cái chuỗi như thế này"
+  },
+  {
+    "start": 402.86,
+    "end": 404.64,
+    "text": "Cách mà cái drag chain này hoạt động"
+  },
+  {
+    "start": 404.64,
+    "end": 405.58,
+    "text": "rất là đơn giản thôi"
+  },
+  {
+    "start": 405.58,
+    "end": 408.16,
+    "text": "Câu hỏi của người dùng sẽ được sử dụng"
+  },
+  {
+    "start": 408.16,
+    "end": 409.1,
+    "text": "làm cái trường question"
+  },
+  {
+    "start": 409.1,
+    "end": 412.44,
+    "text": "Và câu hỏi đó sẽ được cho qua retriever"
+  },
+  {
+    "start": 412.44,
+    "end": 413.88,
+    "text": "để retriever nó sẽ"
+  },
+  {
+    "start": 413.88,
+    "end": 415.74,
+    "text": "tìm ra đâu là cái chăng"
+  },
+  {
+    "start": 415.74,
+    "end": 417.06,
+    "text": "phù hợp nhất với câu hỏi này"
+  },
+  {
+    "start": 417.06,
+    "end": 419.66,
+    "text": "và chúng sẽ được kết hợp lại để thành một cái context"
+  },
+  {
+    "start": 419.66,
+    "end": 420.62,
+    "text": "một cái ngữ cảnh"
+  },
+  {
+    "start": 420.62,
+    "end": 423.63,
+    "text": "Sau đó thì cả câu hỏi và ngữ cảnh"
+  },
+  {
+    "start": 423.63,
+    "end": 425.15,
+    "text": "sẽ được cho qua cái prompt"
+  },
+  {
+    "start": 425.15,
+    "end": 426.97,
+    "text": "mà chúng ta đã định nghĩa template ở trên"
+  },
+  {
+    "start": 426.97,
+    "end": 429.47,
+    "text": "Sau đó thì cái prompt này được cho qua"
+  },
+  {
+    "start": 429.47,
+    "end": 431.33,
+    "text": "môi ngôi ngựa lớn, để môi ngôi ngựa lớn"
+  },
+  {
+    "start": 431.33,
+    "end": 433.33,
+    "text": "hãy xin ra câu trả lời, và câu trả lời này"
+  },
+  {
+    "start": 433.33,
+    "end": 434.83,
+    "text": "sẽ được trả về cho người dùng"
+  },
+  {
+    "start": 434.83,
+    "end": 437.51,
+    "text": "cuối cùng, mình tạo ra một cái vòng lập"
+  },
+  {
+    "start": 437.51,
+    "end": 439.37,
+    "text": "đơn giản như thế này, để cho phép người dùng"
+  },
+  {
+    "start": 439.37,
+    "end": 441.39,
+    "text": "có thể liên tục đặt ra câu hỏi"
+  },
+  {
+    "start": 441.39,
+    "end": 442.49,
+    "text": "để chatbot trả lời"
+  },
+  {
+    "start": 442.49,
+    "end": 445.15,
+    "text": "đến khi nào mà người dùng gõ"
+  },
+  {
+    "start": 445.15,
+    "end": 446.91,
+    "text": "cái dòng chữ là exit, thì con chatbot"
+  },
+  {
+    "start": 446.91,
+    "end": 448.75,
+    "text": "nó sẽ kết thúc, nó sẽ không chạy nữa"
+  },
+  {
+    "start": 448.75,
+    "end": 451.33,
+    "text": "vừa rồi chính là đoạn code về chatbot"
+  },
+  {
+    "start": 451.33,
+    "end": 453.55,
+    "text": "chúng ta đã cùng nhau xây dựng trong video lần trước"
+  },
+  {
+    "start": 453.55,
+    "end": 455.93,
+    "text": "giờ, chúng ta hãy cùng nhau"
+  },
+  {
+    "start": 455.93,
+    "end": 457.27,
+    "text": "phân tích những cái nhược điểm"
+  },
+  {
+    "start": 457.27,
+    "end": 459.35,
+    "text": "những cái hạn chế của con chatbot này"
+  },
+  {
+    "start": 459.35,
+    "end": 467.26,
+    "text": "Thông thường, khi xây dựng một Rack Chatbot, người ta hay có xu hướng tập trung vào 2 thành phần trong cái pipeline này"
+  },
+  {
+    "start": 467.26,
+    "end": 470.07,
+    "text": "Thành phần đầu tiên là LMM"
+  },
+  {
+    "start": 470.07,
+    "end": 476.31,
+    "text": "Lý do thì cũng rất là đơn giản thôi, tại vì đây là nơi sẽ sinh ra câu trả lời để có thể trả về cho người dùng"
+  },
+  {
+    "start": 476.31,
+    "end": 481.03,
+    "text": "Thành phần thứ 2 mà người ta thường dành nhiều sự chú ý, đó là Vector Database"
+  },
+  {
+    "start": 481.03,
+    "end": 485.61,
+    "text": "Tại vì đây là nơi mà chúng ta sẽ lưu trữ các cái embedding vector của các cái chunks"
+  },
+  {
+    "start": 485.61,
+    "end": 490.85,
+    "text": "Cũng như là sau này thực hiện truy xuất để có thể tìm kiếm được những cái embedding vector"
+  },
+  {
+    "start": 490.85,
+    "end": 493.65,
+    "text": "Nó tương đồng nhất với vector câu hỏi của người dùng"
+  },
+  {
+    "start": 493.65,
+    "end": 499.45,
+    "text": "Tuy nhiên, có một bước mà vai trò của nó cũng quan trọng không kém gì hay thành phần mùa rồi"
+  },
+  {
+    "start": 499.45,
+    "end": 501.67,
+    "text": "Nhưng mà người ta thường lại hay ít nói về nó"
+  },
+  {
+    "start": 501.67,
+    "end": 503.27,
+    "text": "Đó chính là bước chunking"
+  },
+  {
+    "start": 503.53,
+    "end": 508.91,
+    "text": "Các bạn cứ tưởng tượng, bước chunking này cũng giống như là chúng ta đang tạo ra các cái viên gạch để xây nhà vậy"
+  },
+  {
+    "start": 508.91,
+    "end": 513.04,
+    "text": "Bước này mà tồi thì chúng ta sẽ tạo ra các viên ngạch kém chất lượng"
+  },
+  {
+    "start": 513.04,
+    "end": 515.32,
+    "text": "Mà một khi các viên ngạch đã kém chất lượng rồi"
+  },
+  {
+    "start": 515.32,
+    "end": 517.86,
+    "text": "Thì bất kể kỹ sư có giỏi đến mấy"
+  },
+  {
+    "start": 517.86,
+    "end": 519.94,
+    "text": "Thợ xây có lành nghề đến mấy"
+  },
+  {
+    "start": 519.94,
+    "end": 523.4,
+    "text": "Si măng, vôi vữa, vật liệu có tốt đến mấy"
+  },
+  {
+    "start": 523.4,
+    "end": 526.06,
+    "text": "Hay là bản vẽ có tuyệt vời đến mấy đi chăng nữa"
+  },
+  {
+    "start": 526.06,
+    "end": 528.56,
+    "text": "Thì chúng ta cũng không thể là chúng ta tạo ra được một căn nhà tốt"
+  },
+  {
+    "start": 528.56,
+    "end": 529.84,
+    "text": "Một căn nhà bền vững được"
+  },
+  {
+    "start": 529.84,
+    "end": 532.68,
+    "text": "Các trăng được tạo ra từ bước trăng kinh này"
+  },
+  {
+    "start": 532.68,
+    "end": 535.14,
+    "text": "Sau này nó sẽ là nguyên liệu trực tiếp"
+  },
+  {
+    "start": 535.14,
+    "end": 537.64,
+    "text": "Để các môi ngó ngữ lớn có thể dựa vào đó"
+  },
+  {
+    "start": 537.64,
+    "end": 539.58,
+    "text": "để có thể trả lời câu hỏi của người dùng"
+  },
+  {
+    "start": 539.58,
+    "end": 542.24,
+    "text": "Các trăng mà tốt, toàn vẹ"
+  },
+  {
+    "start": 542.24,
+    "end": 543.46,
+    "text": "chứa đầy đủ thông tin"
+  },
+  {
+    "start": 543.46,
+    "end": 545.6,
+    "text": "thì chúng ta sẽ có cái nguyên liệu đổ vào tốt"
+  },
+  {
+    "start": 545.6,
+    "end": 546.76,
+    "text": "cho LMS của chúng ta"
+  },
+  {
+    "start": 546.76,
+    "end": 549.32,
+    "text": "và khả năng cao là LMS sẽ đưa ra"
+  },
+  {
+    "start": 549.32,
+    "end": 551.2,
+    "text": "câu trả lời nó đầy đủ, nó tròn vẹn hơn"
+  },
+  {
+    "start": 551.2,
+    "end": 553.58,
+    "text": "và ngược lại, nếu mà các trăng nó tồi"
+  },
+  {
+    "start": 553.58,
+    "end": 554.72,
+    "text": "nó bị thiếu thông tin"
+  },
+  {
+    "start": 554.72,
+    "end": 557.36,
+    "text": "thì khả năng rất là cao là cái câu trả lời"
+  },
+  {
+    "start": 557.36,
+    "end": 559.14,
+    "text": "của LMS nó cũng sẽ bị ảnh hưởng"
+  },
+  {
+    "start": 559.14,
+    "end": 561.46,
+    "text": "một cách tiêu cực. Giờ chúng ta hãy quay trở lại"
+  },
+  {
+    "start": 561.46,
+    "end": 563.04,
+    "text": "với đoạn code xây dựng Ratchetbot"
+  },
+  {
+    "start": 563.04,
+    "end": 565.1,
+    "text": "mà chúng ta đã xây dựng trong video lần trước"
+  },
+  {
+    "start": 565.1,
+    "end": 569.0,
+    "text": "Hiện tại chúng ta đang sử dụng Recursive Character Text Spitter"
+  },
+  {
+    "start": 569.0,
+    "end": 571.68,
+    "text": "Đây là một kỹ thuật trăng ký đơn giản"
+  },
+  {
+    "start": 571.68,
+    "end": 573.76,
+    "text": "Sẽ phân chia tài liệu của chúng ta"
+  },
+  {
+    "start": 573.76,
+    "end": 576.2,
+    "text": "Chủ yếu dựa vào độ dài của các đoạn trăng"
+  },
+  {
+    "start": 576.2,
+    "end": 578.7,
+    "text": "Như trong trường hợp cụ thể này của chúng ta"
+  },
+  {
+    "start": 578.7,
+    "end": 580.3,
+    "text": "Mỗi đoạn trăng sẽ có độ dài"
+  },
+  {
+    "start": 580.3,
+    "end": 582.16,
+    "text": "Cung vượt quá 1.200 ký tự"
+  },
+  {
+    "start": 582.16,
+    "end": 583.94,
+    "text": "Để cho các bạn dễ ảnh dung"
+  },
+  {
+    "start": 583.94,
+    "end": 585.7,
+    "text": "Mình sẽ cho các bạn một cái ví dụ"
+  },
+  {
+    "start": 585.7,
+    "end": 587.74,
+    "text": "Với đoạn text đầu vào là bằng tiếng Việt"
+  },
+  {
+    "start": 587.74,
+    "end": 590.64,
+    "text": "Giờ chúng ta có một cái đoạn text như thế này"
+  },
+  {
+    "start": 590.64,
+    "end": 591.74,
+    "text": "Nội dung ra là"
+  },
+  {
+    "start": 591.74,
+    "end": 593.16,
+    "text": "Phần 3.2 này"
+  },
+  {
+    "start": 593.16,
+    "end": 595.2,
+    "text": "Cơ chế Attention trong Transformer"
+  },
+  {
+    "start": 595.2,
+    "end": 597.26,
+    "text": "Attention cho phép mỗi token nhìn vào"
+  },
+  {
+    "start": 597.26,
+    "end": 599.14,
+    "text": "Tất cả các token khác để hiểu ngữ cảnh"
+  },
+  {
+    "start": 599.14,
+    "end": 601.54,
+    "text": "Thì đây là cái đoạn text được vào của chúng ta"
+  },
+  {
+    "start": 601.54,
+    "end": 603.46,
+    "text": "Và bây giờ chúng ta hãy thử xem là nếu chúng ta"
+  },
+  {
+    "start": 603.46,
+    "end": 605.94,
+    "text": "Dùng Recursive Character Text Feature"
+  },
+  {
+    "start": 605.94,
+    "end": 607.56,
+    "text": "Để có thể phân tách"
+  },
+  {
+    "start": 607.56,
+    "end": 609.34,
+    "text": "Đoạn text này thành các cái trang"
+  },
+  {
+    "start": 609.34,
+    "end": 610.88,
+    "text": "Thì kết quả nó trông như thế nào"
+  },
+  {
+    "start": 610.88,
+    "end": 613.7,
+    "text": "Nếu mình thiết lập trang size là bằng"
+  },
+  {
+    "start": 613.7,
+    "end": 615.58,
+    "text": "90 và đoạn overlap"
+  },
+  {
+    "start": 615.58,
+    "end": 616.94,
+    "text": "Là bằng 15 ký tự"
+  },
+  {
+    "start": 616.94,
+    "end": 619.44,
+    "text": "Có nghĩa là gì? Có nghĩa là mỗi đoạn trang"
+  },
+  {
+    "start": 619.44,
+    "end": 621.52,
+    "text": "Có độ dài tối đa là 90 ký tự"
+  },
+  {
+    "start": 621.52,
+    "end": 623.64,
+    "text": "Và đoạn trùng lập"
+  },
+  {
+    "start": 623.64,
+    "end": 626.0,
+    "text": "Giữa 2 đoạn trang liên tiếp nhau sẽ là 15 ký tự"
+  },
+  {
+    "start": 626.0,
+    "end": 628.02,
+    "text": "Thì chúng ta sẽ có cái kết quả"
+  },
+  {
+    "start": 628.02,
+    "end": 630.02,
+    "text": "Là như các bạn có thể nhìn thấy ở phía bên phải này"
+  },
+  {
+    "start": 630.02,
+    "end": 631.86,
+    "text": "Đúng không? Đây là xác các cái trang"
+  },
+  {
+    "start": 631.86,
+    "end": 632.9,
+    "text": "Được tạo ra"
+  },
+  {
+    "start": 632.9,
+    "end": 635.4,
+    "text": "Tổng cộng chúng ta sẽ có 8 cái trang"
+  },
+  {
+    "start": 635.4,
+    "end": 638.04,
+    "text": "Mỗi một cái trang, các bạn nhìn đây"
+  },
+  {
+    "start": 638.04,
+    "end": 640.26,
+    "text": "Trang 1, trang 2, trang 3, trang 4 này đúng không?"
+  },
+  {
+    "start": 640.56,
+    "end": 642.24,
+    "text": "Chúng nó đều có những độ dài là"
+  },
+  {
+    "start": 642.24,
+    "end": 644.56,
+    "text": "90 ký tự và các bạn có thể thấy là gì?"
+  },
+  {
+    "start": 645.04,
+    "end": 646.64,
+    "text": "Là một vài ký tự"
+  },
+  {
+    "start": 646.64,
+    "end": 648.1,
+    "text": "Cuối cùng của cái trang trước"
+  },
+  {
+    "start": 648.1,
+    "end": 650.38,
+    "text": "Nó sẽ trùng lập với một vài"
+  },
+  {
+    "start": 650.38,
+    "end": 651.62,
+    "text": "Những ký tự của cái trang sau"
+  },
+  {
+    "start": 651.62,
+    "end": 653.6,
+    "text": "Tại vì chúng ta đã thiết lập là overlap"
+  },
+  {
+    "start": 653.6,
+    "end": 654.72,
+    "text": "15 ký tự rồi"
+  },
+  {
+    "start": 654.72,
+    "end": 657.72,
+    "text": "Mình sẽ kéo xuống dưới để chúng ta có thể xem được nội dung"
+  },
+  {
+    "start": 657.72,
+    "end": 658.88,
+    "text": "Của các cái trang còn lại"
+  },
+  {
+    "start": 658.88,
+    "end": 661.81,
+    "text": "Đây các bạn thấy không, chúng ta có 8 trang"
+  },
+  {
+    "start": 661.81,
+    "end": 663.83,
+    "text": "Trang cuối thì nó sẽ có"
+  },
+  {
+    "start": 663.83,
+    "end": 665.47,
+    "text": "Ít ký tự hơn so với những cái trang khác"
+  },
+  {
+    "start": 665.47,
+    "end": 667.41,
+    "text": "Tại vì chúng ta đã kết thúc văn bản ở đây rồi"
+  },
+  {
+    "start": 667.41,
+    "end": 670.17,
+    "text": "Chỉ nhìn qua thôi, các bạn cũng có thể thấy ngay được"
+  },
+  {
+    "start": 670.17,
+    "end": 671.69,
+    "text": "Một vài những nhược điểm rất là rõ ràng"
+  },
+  {
+    "start": 671.69,
+    "end": 672.67,
+    "text": "Của cách tiếp cận này đúng không"
+  },
+  {
+    "start": 672.67,
+    "end": 675.83,
+    "text": "Các cái đạo trang của chúng ta bắt đầu và kết thúc"
+  },
+  {
+    "start": 675.83,
+    "end": 677.83,
+    "text": "Một cách không trọn vẹn"
+  },
+  {
+    "start": 677.83,
+    "end": 679.29,
+    "text": "Đây các bạn thấy không, đầu này bắt đầu"
+  },
+  {
+    "start": 679.29,
+    "end": 680.47,
+    "text": "Nó chả có ý nghĩa gì cả đâu"
+  },
+  {
+    "start": 680.47,
+    "end": 681.93,
+    "text": "Nó bị thiếu mất chữ V ở phía trước"
+  },
+  {
+    "start": 681.93,
+    "end": 682.49,
+    "text": "Đúng không?"
+  },
+  {
+    "start": 682.79,
+    "end": 683.77,
+    "text": "Và cái kết thúc đây đúng không?"
+  },
+  {
+    "start": 684.35,
+    "end": 686.69,
+    "text": "Vì xử lý chẳng chỉ có mỗi chữ L thôi"
+  },
+  {
+    "start": 686.69,
+    "end": 688.07,
+    "text": "Nó không có cái chữ Y nữa"
+  },
+  {
+    "start": 688.07,
+    "end": 690.01,
+    "text": "Tại vì là nó bị sang cái trăng tiếp theo rồi"
+  },
+  {
+    "start": 690.01,
+    "end": 692.41,
+    "text": "Các đoạn trăng không đầu không đuôi này"
+  },
+  {
+    "start": 692.41,
+    "end": 694.61,
+    "text": "Thứ nhất là nó không chọn vẹn về mặt ý nghĩa"
+  },
+  {
+    "start": 694.61,
+    "end": 696.95,
+    "text": "Và thứ hai là nó không chọn vẹn về mặt cấu trúc"
+  },
+  {
+    "start": 696.95,
+    "end": 698.71,
+    "text": "Và các bạn nhìn nhé"
+  },
+  {
+    "start": 698.71,
+    "end": 700.69,
+    "text": "Trong cái đoạn text đầu vào của chúng ta"
+  },
+  {
+    "start": 700.69,
+    "end": 702.03,
+    "text": "Chúng ta có một cái bảng như này"
+  },
+  {
+    "start": 702.03,
+    "end": 702.87,
+    "text": "Đúng không?"
+  },
+  {
+    "start": 703.19,
+    "end": 704.31,
+    "text": "Nhưng mà khi mà chúng ta"
+  },
+  {
+    "start": 704.31,
+    "end": 705.59,
+    "text": "Sử dụng"
+  },
+  {
+    "start": 705.59,
+    "end": 707.59,
+    "text": "Recursive Character Text Writer"
+  },
+  {
+    "start": 707.59,
+    "end": 708.99,
+    "text": "Để chúng ta chia thành các cái đoạn trang ấy"
+  },
+  {
+    "start": 708.99,
+    "end": 709.73,
+    "text": "Thì các bạn thấy không"
+  },
+  {
+    "start": 709.73,
+    "end": 712.67,
+    "text": "Có một phần của cái bảng nó rơi vào cái trang trước"
+  },
+  {
+    "start": 712.67,
+    "end": 715.29,
+    "text": "Và một phần của cái bảng nó rơi vào cái trang sau"
+  },
+  {
+    "start": 715.29,
+    "end": 719.55,
+    "text": "Tức là mỗi một cái trang nó đều không lưu trữ trọn vẹn thông tin về cái bảng này"
+  },
+  {
+    "start": 719.55,
+    "end": 722.43,
+    "text": "Tất cả những cái sự không trọn vẹn, không đầy đủ này"
+  },
+  {
+    "start": 722.43,
+    "end": 725.35,
+    "text": "Sau này nó sẽ khiến cho cái môi ngôi ngôi lớn của chúng ta"
+  },
+  {
+    "start": 725.35,
+    "end": 729.71,
+    "text": "Nếu nó phải dựa vào các cái trang này để tạo ra câu trả lời"
+  },
+  {
+    "start": 729.71,
+    "end": 733.09,
+    "text": "Thì cái câu trả lời nó cũng sẽ không được đầy đủ, không được trọn vẹn"
+  },
+  {
+    "start": 733.09,
+    "end": 734.55,
+    "text": "Sau khi đã nói về những cái nhược điểm"
+  },
+  {
+    "start": 734.55,
+    "end": 736.97,
+    "text": "Cũng như là hạn chế của phố bác trang kinh hiện tại rồi"
+  },
+  {
+    "start": 736.97,
+    "end": 741.23,
+    "text": "Chúng ta sẽ cùng nhau nói về cách để chúng ta có thể khắc phục những trường điểm này"
+  },
+  {
+    "start": 741.23,
+    "end": 746.03,
+    "text": "Đầu tiên, chúng ta sẽ nói về một kỹ thuật có tên là Semantic Trang Kinh"
+  },
+  {
+    "start": 746.03,
+    "end": 748.75,
+    "text": "Hay là cắt văn bản dựa theo ngữ nghĩa"
+  },
+  {
+    "start": 748.75,
+    "end": 755.25,
+    "text": "Semantic Trang Kinh sẽ giúp chúng ta có thể cắt văn bản dựa trên sự thay đổi về mặt ngữ nghĩa của nội dung"
+  },
+  {
+    "start": 755.25,
+    "end": 757.33,
+    "text": "Chứ không còn dựa vào số lượng ký tự nữa"
+  },
+  {
+    "start": 757.33,
+    "end": 761.9,
+    "text": "Như các bạn có thể nhìn thấy, đây là luồng hoạt động của Semantic Trang Kinh"
+  },
+  {
+    "start": 761.9,
+    "end": 766.28,
+    "text": "Đầu tiên thì Seminary Trang King sẽ tách văn bản của chúng ta"
+  },
+  {
+    "start": 766.28,
+    "end": 769.18,
+    "text": "Thành các cái câu đơn lẻ dựa vào các cái dấu câu"
+  },
+  {
+    "start": 769.18,
+    "end": 772.66,
+    "text": "Ví dụ như là dấu chấm, dấu chấm than hay là dấu hỏi chấm"
+  },
+  {
+    "start": 772.66,
+    "end": 776.24,
+    "text": "Sau đó chúng ta sẽ sử dụng một cái emitting model"
+  },
+  {
+    "start": 776.24,
+    "end": 778.2,
+    "text": "Để có thể số hóa cái câu này"
+  },
+  {
+    "start": 778.2,
+    "end": 781.68,
+    "text": "Mỗi câu thành một cái emitting vector có độ dài cố định"
+  },
+  {
+    "start": 781.68,
+    "end": 786.66,
+    "text": "Ở với tiếp theo chúng ta sẽ cần phải tính toán được sự tương đồng về mặt ý nghĩa"
+  },
+  {
+    "start": 786.66,
+    "end": 788.04,
+    "text": "Giữa hai câu liên tiếp nhau"
+  },
+  {
+    "start": 788.04,
+    "end": 792.54,
+    "text": "thông qua tính toán cosi CMYT giữa 2 emmating vector của chúng."
+  },
+  {
+    "start": 793.02,
+    "end": 797.02,
+    "text": "Chúng ta sẽ tính toán như vậy với tất cả các cặp câu liên tiếp nhau trong văn bản của chúng ta."
+  },
+  {
+    "start": 797.78,
+    "end": 802.2,
+    "text": "Sau đó, chúng ta sẽ so sánh tất cả các cái giá trị cosi CMYT"
+  },
+  {
+    "start": 802.2,
+    "end": 804.92,
+    "text": "mà chúng ta vừa tính được với một cái giá trị ngưỡng nào đó."
+  },
+  {
+    "start": 805.78,
+    "end": 808.22,
+    "text": "Ví dụ ngưỡng của chúng ta là 0,85 chẳng hạn."
+  },
+  {
+    "start": 808.54,
+    "end": 813.52,
+    "text": "Thì nếu mà cái giá trị cosi CMYT giữa một cặp 2 câu liên tiếp nhau"
+  },
+  {
+    "start": 813.52,
+    "end": 815.02,
+    "text": "Mà vượt trên cái ngưỡng này"
+  },
+  {
+    "start": 815.02,
+    "end": 816.84,
+    "text": "Thì có nghĩa là 2 câu này"
+  },
+  {
+    "start": 816.84,
+    "end": 819.34,
+    "text": "Vẫn tương đục nhau về mặt ý nghĩa"
+  },
+  {
+    "start": 819.34,
+    "end": 821.1,
+    "text": "Và ngược lại, nếu mà cái giá trị"
+  },
+  {
+    "start": 821.1,
+    "end": 823.3,
+    "text": "Câu size similarity giữa 2 câu liên tiếp nhau"
+  },
+  {
+    "start": 823.3,
+    "end": 824.6,
+    "text": "Nó dưới 1 cái ngưỡng"
+  },
+  {
+    "start": 824.6,
+    "end": 826.76,
+    "text": "Có nghĩa là đã có cái sự thay đổi về mặt ý nghĩa"
+  },
+  {
+    "start": 826.76,
+    "end": 828.54,
+    "text": "Giữa câu đầu và câu thứ 2 rồi"
+  },
+  {
+    "start": 828.54,
+    "end": 830.92,
+    "text": "Và 1 khi đã có sự thay đổi về mặt ý nghĩa rồi"
+  },
+  {
+    "start": 830.92,
+    "end": 832.4,
+    "text": "Thì chúng ta sẽ thể hiện tách tại đây"
+  },
+  {
+    "start": 832.4,
+    "end": 834.56,
+    "text": "Thế là gì? Thế là cái câu đầu tiên"
+  },
+  {
+    "start": 834.56,
+    "end": 835.86,
+    "text": "Thì sẽ thuộc về trăng trước"
+  },
+  {
+    "start": 835.86,
+    "end": 838.22,
+    "text": "Trong khi câu thứ 2 sẽ thuộc về trăng sau"
+  },
+  {
+    "start": 838.22,
+    "end": 840.2,
+    "text": "Như trong ví dụ này của chúng ta"
+  },
+  {
+    "start": 840.2,
+    "end": 842.56,
+    "text": "Giả sử chúng ta có 5 câu đi chẳng hạn"
+  },
+  {
+    "start": 842.56,
+    "end": 842.94,
+    "text": "Đúng không?"
+  },
+  {
+    "start": 843.24,
+    "end": 843.92,
+    "text": "Thì chúng ta thấy là"
+  },
+  {
+    "start": 843.92,
+    "end": 845.78,
+    "text": "Khi chúng ta tính ra cái câu sai ximity"
+  },
+  {
+    "start": 845.78,
+    "end": 846.8,
+    "text": "Chúng ta thấy là"
+  },
+  {
+    "start": 846.8,
+    "end": 849.1,
+    "text": "Câu sai ximity giữa câu 1 và câu 2"
+  },
+  {
+    "start": 849.1,
+    "end": 850.76,
+    "text": "Hay là giữa câu 2 và câu 3"
+  },
+  {
+    "start": 850.76,
+    "end": 852.86,
+    "text": "Nó vượt qua cái ngưỡng là 0.785"
+  },
+  {
+    "start": 852.86,
+    "end": 854.9,
+    "text": "Thế nhưng mà cái câu sai ximity"
+  },
+  {
+    "start": 854.9,
+    "end": 856.26,
+    "text": "Giữa câu 3 và câu 4"
+  },
+  {
+    "start": 856.26,
+    "end": 857.52,
+    "text": "Nó dưới 0.785"
+  },
+  {
+    "start": 857.52,
+    "end": 860.16,
+    "text": "Và câu sai ximity giữa câu 4 và câu 5"
+  },
+  {
+    "start": 860.16,
+    "end": 861.72,
+    "text": "Nó lại vượt trên 0.785"
+  },
+  {
+    "start": 861.72,
+    "end": 862.9,
+    "text": "Thế thì khi chúng ta tách"
+  },
+  {
+    "start": 862.9,
+    "end": 863.72,
+    "text": "Chúng ta sẽ tách là"
+  },
+  {
+    "start": 863.72,
+    "end": 865.22,
+    "text": "Câu 1, câu 2, câu 3"
+  },
+  {
+    "start": 865.22,
+    "end": 866.1,
+    "text": "Vào 1 trang"
+  },
+  {
+    "start": 866.1,
+    "end": 867.68,
+    "text": "Và câu 4 và câu 5"
+  },
+  {
+    "start": 867.68,
+    "end": 868.86,
+    "text": "sẽ thuộc về một trang thứ 2"
+  },
+  {
+    "start": 868.86,
+    "end": 870.8,
+    "text": "Ok, đó là lý thuyết"
+  },
+  {
+    "start": 870.8,
+    "end": 873.16,
+    "text": "Thế còn bây giờ, chúng ta sẽ trừ qua phần thực hành"
+  },
+  {
+    "start": 873.16,
+    "end": 875.24,
+    "text": "Để có thể sử dụng được"
+  },
+  {
+    "start": 875.24,
+    "end": 877.72,
+    "text": "CMT Trang Cơ trong cái đoạn code của chúng ta"
+  },
+  {
+    "start": 877.72,
+    "end": 880.2,
+    "text": "thì chúng ta sẽ cần phải thêm vào một cái dòng import như thế này"
+  },
+  {
+    "start": 880.2,
+    "end": 881.6,
+    "text": "For"
+  },
+  {
+    "start": 881.6,
+    "end": 882.74,
+    "text": "Lightchain"
+  },
+  {
+    "start": 882.74,
+    "end": 885.35,
+    "text": "Experimental"
+  },
+  {
+    "start": 885.35,
+    "end": 888.29,
+    "text": "Text Twitter"
+  },
+  {
+    "start": 888.29,
+    "end": 891.71,
+    "text": "Import"
+  },
+  {
+    "start": 891.71,
+    "end": 893.87,
+    "text": "Cmantic Trang Cơ"
+  },
+  {
+    "start": 893.87,
+    "end": 899.96,
+    "text": "Ok, đây là câu import"
+  },
+  {
+    "start": 899.96,
+    "end": 902.18,
+    "text": "Và ở phía dưới, chúng ta sẽ"
+  },
+  {
+    "start": 902.18,
+    "end": 903.68,
+    "text": "thay thế cái"
+  },
+  {
+    "start": 903.68,
+    "end": 905.1,
+    "text": "text filter hiện tại"
+  },
+  {
+    "start": 905.1,
+    "end": 907.46,
+    "text": "bằng cái"
+  },
+  {
+    "start": 907.46,
+    "end": 909.44,
+    "text": "semi-trancer mà chúng ta vừa mới import"
+  },
+  {
+    "start": 909.44,
+    "end": 911.66,
+    "text": "text filter"
+  },
+  {
+    "start": 911.66,
+    "end": 914.2,
+    "text": "bằng text"
+  },
+  {
+    "start": 914.2,
+    "end": 915.68,
+    "text": "trăncer như này"
+  },
+  {
+    "start": 915.68,
+    "end": 918.89,
+    "text": "ok, và sau chúng ta sẽ cần phải"
+  },
+  {
+    "start": 918.89,
+    "end": 921.27,
+    "text": "chỉ ra một vài những tham số quan trọng"
+  },
+  {
+    "start": 921.27,
+    "end": 922.15,
+    "text": "tham số đầu tiên"
+  },
+  {
+    "start": 922.15,
+    "end": 924.81,
+    "text": "chúng ta sẽ cần phải chỉ ra là chúng ta sẽ"
+  },
+  {
+    "start": 924.81,
+    "end": 926.83,
+    "text": "emetting các câu của chúng ta"
+  },
+  {
+    "start": 926.83,
+    "end": 927.89,
+    "text": "bằng mô hình gì"
+  },
+  {
+    "start": 927.89,
+    "end": 930.85,
+    "text": "vì do là ở phía sau chúng ta sẽ sử dụng"
+  },
+  {
+    "start": 930.85,
+    "end": 932.25,
+    "text": "emetting model của OpenAI"
+  },
+  {
+    "start": 932.25,
+    "end": 934.83,
+    "text": "nên ở đây chúng ta cũng có thể chúng ta sẽ dùng luôn"
+  },
+  {
+    "start": 934.83,
+    "end": 936.35,
+    "text": "MADING model của OpenAI luôn"
+  },
+  {
+    "start": 936.35,
+    "end": 938.19,
+    "text": "Chúng ta sẽ chỉ là MADING"
+  },
+  {
+    "start": 938.19,
+    "end": 940.41,
+    "text": "OpenAI"
+  },
+  {
+    "start": 940.41,
+    "end": 941.91,
+    "text": "MADING như thế này"
+  },
+  {
+    "start": 941.91,
+    "end": 945.22,
+    "text": "Đây, thì đây chính là tham số đầu tiên mà chúng ta sẽ phải chỉ ra"
+  },
+  {
+    "start": 945.22,
+    "end": 947.34,
+    "text": "Khi chúng ta sử dụng Semantic Trunker"
+  },
+  {
+    "start": 947.34,
+    "end": 949.76,
+    "text": "Tham số thứ 2 mà chúng ta cần phải chỉ ra"
+  },
+  {
+    "start": 949.76,
+    "end": 951.14,
+    "text": "Đó chính là cái ngưỡng"
+  },
+  {
+    "start": 951.14,
+    "end": 953.04,
+    "text": "Dành cho COSILE SIMULITY"
+  },
+  {
+    "start": 953.04,
+    "end": 955.36,
+    "text": "Mà chúng ta muốn thiết lập để có thể cắt câu"
+  },
+  {
+    "start": 955.36,
+    "end": 957.76,
+    "text": "Có nghĩa là nếu mà COSILE SIMULITY"
+  },
+  {
+    "start": 957.76,
+    "end": 959.5,
+    "text": "Giữa 2 cái câu liên tiếp"
+  },
+  {
+    "start": 959.5,
+    "end": 960.8,
+    "text": "Nó dưới cái ngưỡng này"
+  },
+  {
+    "start": 960.8,
+    "end": 962.34,
+    "text": "Chúng ta sẽ cắt trăng tại đây"
+  },
+  {
+    "start": 962.34,
+    "end": 964.82,
+    "text": "Thì cái tham số này nó có tên là"
+  },
+  {
+    "start": 964.82,
+    "end": 965.78,
+    "text": "Breakpoint"
+  },
+  {
+    "start": 965.78,
+    "end": 968.17,
+    "text": "Threshold"
+  },
+  {
+    "start": 968.17,
+    "end": 969.77,
+    "text": "Amount"
+  },
+  {
+    "start": 969.77,
+    "end": 972.44,
+    "text": "Mình sẽ thiết lập bằng 0.785"
+  },
+  {
+    "start": 972.44,
+    "end": 976.01,
+    "text": "Có nghĩa là câu size 70D giữa 2 câu liên tiếp"
+  },
+  {
+    "start": 976.01,
+    "end": 977.51,
+    "text": "Mà dưới 0.785 thì tôi sẽ cắt"
+  },
+  {
+    "start": 977.51,
+    "end": 978.81,
+    "text": "Thành 2 cái trang"
+  },
+  {
+    "start": 978.81,
+    "end": 980.57,
+    "text": "Cái câu đầu tiên thuộc về cái trang trước"
+  },
+  {
+    "start": 980.57,
+    "end": 982.15,
+    "text": "Cái câu thứ 2 thuộc về cái trang sau"
+  },
+  {
+    "start": 982.15,
+    "end": 983.69,
+    "text": "Vậy là so với chương trình cũ"
+  },
+  {
+    "start": 983.69,
+    "end": 984.97,
+    "text": "Thì ở trong chương trình mới này"
+  },
+  {
+    "start": 984.97,
+    "end": 986.57,
+    "text": "Chúng ta chỉ thay đổi duy nhất 1 chỗ"
+  },
+  {
+    "start": 986.57,
+    "end": 988.17,
+    "text": "Đó là thay vì chúng ta sử dụng"
+  },
+  {
+    "start": 988.17,
+    "end": 989.99,
+    "text": "Recursive Character Text Feeder"
+  },
+  {
+    "start": 989.99,
+    "end": 991.37,
+    "text": "Thì mình chúng ta sẽ sử dụng"
+  },
+  {
+    "start": 991.37,
+    "end": 992.21,
+    "text": "Semishanker"
+  },
+  {
+    "start": 992.21,
+    "end": 994.25,
+    "text": "Còn những chỗ khác chúng ta vẫn giữ nguyên như vậy"
+  },
+  {
+    "start": 994.25,
+    "end": 996.01,
+    "text": "Sau đó thì các bạn có thể hoàn toàn"
+  },
+  {
+    "start": 996.01,
+    "end": 997.89,
+    "text": "các bạn chạy lại con chatbot này để các bạn xem"
+  },
+  {
+    "start": 997.89,
+    "end": 999.27,
+    "text": "là cái câu trả lời mới"
+  },
+  {
+    "start": 999.27,
+    "end": 1000.87,
+    "text": "khác gì với câu trả lời cũ"
+  },
+  {
+    "start": 1000.87,
+    "end": 1003.67,
+    "text": "Như các bạn có thể thấy, đây là demo"
+  },
+  {
+    "start": 1003.67,
+    "end": 1005.59,
+    "text": "khi chúng ta sử dụng Semlish Trunker"
+  },
+  {
+    "start": 1005.59,
+    "end": 1007.93,
+    "text": "vẫn với đoạn text đầu vào như ví dụ trước"
+  },
+  {
+    "start": 1007.93,
+    "end": 1009.77,
+    "text": "Các bạn có thể thấy là"
+  },
+  {
+    "start": 1009.77,
+    "end": 1011.87,
+    "text": "các cái trang được cắt ra"
+  },
+  {
+    "start": 1011.87,
+    "end": 1013.43,
+    "text": "chúng nó đã được tảo toàn"
+  },
+  {
+    "start": 1013.43,
+    "end": 1015.75,
+    "text": "về mặt ý nghĩa và không còn cái hiện tượng"
+  },
+  {
+    "start": 1015.75,
+    "end": 1017.51,
+    "text": "là các cái trang nó bắt đầu"
+  },
+  {
+    "start": 1017.51,
+    "end": 1018.89,
+    "text": "hay là kết thúc một cách lưng chừng"
+  },
+  {
+    "start": 1018.89,
+    "end": 1021.45,
+    "text": "Bây giờ mỗi một cái trang ra nó đều là những cái nội dung"
+  },
+  {
+    "start": 1021.45,
+    "end": 1023.51,
+    "text": "hoàn chỉnh và các cái câu"
+  },
+  {
+    "start": 1023.51,
+    "end": 1025.21,
+    "text": "trong cùng một trang thì chúng nó sẽ"
+  },
+  {
+    "start": 1025.21,
+    "end": 1027.77,
+    "text": "Tương đồng với nhau về mặt ý nghĩa"
+  },
+  {
+    "start": 1027.77,
+    "end": 1028.75,
+    "text": "Và các bạn có thể thấy là gì?"
+  },
+  {
+    "start": 1029.15,
+    "end": 1030.81,
+    "text": "Là cái bảng của chúng ta bây giờ nó không bị"
+  },
+  {
+    "start": 1030.81,
+    "end": 1032.73,
+    "text": "Cắt lẻ ra ở giữa nữa"
+  },
+  {
+    "start": 1032.73,
+    "end": 1034.61,
+    "text": "Mà bây giờ thì toàn bộ cái bảng của chúng ta"
+  },
+  {
+    "start": 1034.61,
+    "end": 1036.93,
+    "text": "Nó đã rơi vào trong một cái trang hoàn chỉnh"
+  },
+  {
+    "start": 1036.93,
+    "end": 1039.33,
+    "text": "Đây là kết quả của 2 phương pháp trang kinh"
+  },
+  {
+    "start": 1039.33,
+    "end": 1040.89,
+    "text": "Khi chúng ta đặt chúng bên cạnh nhau"
+  },
+  {
+    "start": 1040.89,
+    "end": 1042.63,
+    "text": "Bên trái là"
+  },
+  {
+    "start": 1042.63,
+    "end": 1044.47,
+    "text": "Requisite Character Texts Peter"
+  },
+  {
+    "start": 1044.47,
+    "end": 1047.03,
+    "text": "Và bên phải là Semantic Trangker"
+  },
+  {
+    "start": 1047.03,
+    "end": 1049.07,
+    "text": "Các bạn có thể thấy được sự khác biệt"
+  },
+  {
+    "start": 1049.07,
+    "end": 1050.53,
+    "text": "Rõ ràng về mặt chất lượng"
+  },
+  {
+    "start": 1050.53,
+    "end": 1052.47,
+    "text": "Của các cái đoạn trang giữa 2 phương pháp này"
+  },
+  {
+    "start": 1052.47,
+    "end": 1054.75,
+    "text": "Đúng không? Nhìn chung thì trong phần lớn các trường hợp"
+  },
+  {
+    "start": 1054.75,
+    "end": 1056.39,
+    "text": "Thì sử dụng Semitic Trangger"
+  },
+  {
+    "start": 1056.39,
+    "end": 1057.53,
+    "text": "Nó sẽ tốt hơn nhiều"
+  },
+  {
+    "start": 1057.53,
+    "end": 1059.83,
+    "text": "Do với dụng Recursive Cater-Tex-Speaker"
+  },
+  {
+    "start": 1059.83,
+    "end": 1062.23,
+    "text": "Tại vì nó bảo toàn được thông tin về mặt ngữ nghĩa"
+  },
+  {
+    "start": 1062.23,
+    "end": 1064.15,
+    "text": "Chúng ta sẽ không còn những cái trang không đầu"
+  },
+  {
+    "start": 1064.15,
+    "end": 1066.85,
+    "text": "Không đuôi hay là không rõ ràng về mặt ý nghĩa nữa"
+  },
+  {
+    "start": 1066.85,
+    "end": 1068.73,
+    "text": "Nói đi thì cũng phải nói lại"
+  },
+  {
+    "start": 1068.73,
+    "end": 1070.5,
+    "text": "Chúng ta nói rất nhiều"
+  },
+  {
+    "start": 1070.5,
+    "end": 1073.26,
+    "text": "Về những ưu điểm của Semitic Trangger rồi"
+  },
+  {
+    "start": 1073.26,
+    "end": 1075.02,
+    "text": "Thì chúng ta cũng nên nói qua một chút"
+  },
+  {
+    "start": 1075.02,
+    "end": 1076.14,
+    "text": "Về nhược điểm của nó"
+  },
+  {
+    "start": 1076.14,
+    "end": 1079.33,
+    "text": "Nhược điểm dễ dàng nhất của Semitic Trangger"
+  },
+  {
+    "start": 1079.33,
+    "end": 1081.23,
+    "text": "Đó chúng ta sẽ phải tốn thêm một cái bước"
+  },
+  {
+    "start": 1081.23,
+    "end": 1083.45,
+    "text": "Để chúng ta thể hiện embedding cho các cái câu"
+  },
+  {
+    "start": 1083.45,
+    "end": 1084.81,
+    "text": "Do đó thì"
+  },
+  {
+    "start": 1084.81,
+    "end": 1087.55,
+    "text": "Nếu chúng ta sử dụng API thì các bạn sẽ phải trả thêm tiền"
+  },
+  {
+    "start": 1087.55,
+    "end": 1090.61,
+    "text": "Còn nếu mà chúng ta tự host các cái nguồn hình embedding"
+  },
+  {
+    "start": 1090.61,
+    "end": 1093.63,
+    "text": "Thì các bạn cũng sẽ tốn những thời gian để có thể embed các cái câu"
+  },
+  {
+    "start": 1093.63,
+    "end": 1096.29,
+    "text": "Recursive hay là Seventic Trunking"
+  },
+  {
+    "start": 1096.29,
+    "end": 1099.91,
+    "text": "Chỉ là 2 trong số rất nhiều các kỹ thuật Trunking thường được sử dụng trong Rack"
+  },
+  {
+    "start": 1099.91,
+    "end": 1101.41,
+    "text": "Ngoài 2 kỹ thuật này ra"
+  },
+  {
+    "start": 1101.41,
+    "end": 1103.55,
+    "text": "Chúng ta còn có rất nhiều các kỹ thuật Trunking khác"
+  },
+  {
+    "start": 1103.55,
+    "end": 1105.15,
+    "text": "Từ cơ bản đến nâng cao"
+  },
+  {
+    "start": 1105.15,
+    "end": 1108.61,
+    "text": "Mỗi kỹ thuật đã có những cái ưu điểm, nhược điểm của riêng mình"
+  },
+  {
+    "start": 1108.61,
+    "end": 1111.21,
+    "text": "Và chúng sẽ thường được sử dụng trong các trường hợp khác nhau"
+  },
+  {
+    "start": 1111.21,
+    "end": 1112.63,
+    "text": "Với những loại dữ liệu khác nhau"
+  },
+  {
+    "start": 1112.63,
+    "end": 1114.21,
+    "text": "Với các cái use case khác nhau"
+  },
+  {
+    "start": 1114.21,
+    "end": 1115.33,
+    "text": "Trong thời gian tới"
+  },
+  {
+    "start": 1115.33,
+    "end": 1116.87,
+    "text": "Mình sẽ làm một cái video"
+  },
+  {
+    "start": 1116.87,
+    "end": 1119.03,
+    "text": "Để có thể tổng hợp và hệ tổng hóa"
+  },
+  {
+    "start": 1119.03,
+    "end": 1120.81,
+    "text": "Tất cả các kỹ thuật chunking phổ bệnh nhất"
+  },
+  {
+    "start": 1120.81,
+    "end": 1121.87,
+    "text": "Thường được dựa trong Rack"
+  },
+  {
+    "start": 1121.87,
+    "end": 1124.93,
+    "text": "Mình hy vọng là những video về chủ đề Rack này"
+  },
+  {
+    "start": 1124.93,
+    "end": 1126.93,
+    "text": "Sẽ giúp cho bạn có thể trang bị được cho mình"
+  },
+  {
+    "start": 1126.93,
+    "end": 1128.55,
+    "text": "Những kỹ thức cơ bản và cần thiết nhất"
+  },
+  {
+    "start": 1128.55,
+    "end": 1130.11,
+    "text": "Để các bạn có thể tự mình xây dựng"
+  },
+  {
+    "start": 1130.11,
+    "end": 1132.23,
+    "text": "Inchart Bot phù cho những kỹ mục đích khác nhau"
+  },
+  {
+    "start": 1132.23,
+    "end": 1133.37,
+    "text": "Vậy là hôm nay"
+  },
+  {
+    "start": 1133.37,
+    "end": 1135.97,
+    "text": "Chúng ta đã cùng nhau nâng cấp cho Rack Trang Bot"
+  },
+  {
+    "start": 1135.97,
+    "end": 1138.09,
+    "text": "Thông qua việc sử dụng Semic Trunker"
+  },
+  {
+    "start": 1138.09,
+    "end": 1139.78,
+    "text": "Như mình đã nói"
+  },
+  {
+    "start": 1139.78,
+    "end": 1140.84,
+    "text": "Trong video sau"
+  },
+  {
+    "start": 1140.84,
+    "end": 1142.06,
+    "text": "Mình sẽ tổng hợp cho các bạn"
+  },
+  {
+    "start": 1142.06,
+    "end": 1143.88,
+    "text": "Tất cả những kỹ thuật tracking phổ biến nhất"
+  },
+  {
+    "start": 1143.88,
+    "end": 1145.0,
+    "text": "Thường được dùng trong Rack"
+  },
+  {
+    "start": 1145.0,
+    "end": 1146.6,
+    "text": "Mình hy vọng là những video này"
+  },
+  {
+    "start": 1146.6,
+    "end": 1147.62,
+    "text": "Sẽ được các bạn đón nhận"
+  },
+  {
+    "start": 1147.62,
+    "end": 1149.57,
+    "text": "Mình rất cảm ơn các bạn"
+  },
+  {
+    "start": 1149.57,
+    "end": 1150.89,
+    "text": "Đã dành đến giai đoạn của mình"
+  },
+  {
+    "start": 1150.89,
+    "end": 1151.95,
+    "text": "Mình sẽ hẹn các bạn"
+  },
+  {
+    "start": 1151.95,
+    "end": 1152.67,
+    "text": "Những video sau"
+  }
+]
