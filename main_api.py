@@ -16,6 +16,7 @@ import os
 import json
 import logging
 from typing import Optional, List
+import re
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
@@ -49,7 +50,7 @@ app.add_middleware(
 
 # Singleton instances (khởi tạo 1 lần khi server start)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-RESULTS_CACHE_PATH = os.path.join(BASE_DIR, "results_cache.json")
+SUMMARY_RESULTS_DIR = os.path.join(BASE_DIR, "summary_results")
 
 rag_engine = RAGEngine(persist_directory=os.path.join(BASE_DIR, "chroma_db"))
 llm_service = LLMService()
@@ -57,20 +58,49 @@ llm_service = LLMService()
 # In-memory results cache {meeting_id: analysis_dict}
 _results_cache: dict = {}
 
+
+def _ensure_summary_dir() -> None:
+    os.makedirs(SUMMARY_RESULTS_DIR, exist_ok=True)
+
+
+def _sanitize_meeting_id(meeting_id: str) -> str:
+    # Keep filenames stable and filesystem-safe.
+    return re.sub(r"[^A-Za-z0-9_-]+", "_", meeting_id).strip("_") or "meeting"
+
+
+def _result_file_path(meeting_id: str) -> str:
+    safe_id = _sanitize_meeting_id(meeting_id)
+    return os.path.join(SUMMARY_RESULTS_DIR, f"{safe_id}.json")
+
+
+def _load_results_cache_from_disk() -> None:
+    _ensure_summary_dir()
+    for filename in os.listdir(SUMMARY_RESULTS_DIR):
+        if not filename.lower().endswith(".json"):
+            continue
+        file_path = os.path.join(SUMMARY_RESULTS_DIR, filename)
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            meeting_id = data.get("meeting_id")
+            if meeting_id:
+                _results_cache[meeting_id] = data
+        except Exception as exc:
+            logger.warning(f"[!] Không thể load cache file '{file_path}': {exc}")
+
+
 # Load cache từ disk nếu có
-if os.path.exists(RESULTS_CACHE_PATH):
-    try:
-        with open(RESULTS_CACHE_PATH, "r", encoding="utf-8") as f:
-            _results_cache = json.load(f)
-        logger.info(f"[*] Loaded {len(_results_cache)} cached results từ disk.")
-    except Exception:
-        _results_cache = {}
+_load_results_cache_from_disk()
+if _results_cache:
+    logger.info(f"[*] Loaded {len(_results_cache)} cached results từ disk.")
 
 
-def _save_results_cache():
-    """Persist results cache xuống disk."""
-    with open(RESULTS_CACHE_PATH, "w", encoding="utf-8") as f:
-        json.dump(_results_cache, f, ensure_ascii=False, indent=2)
+def _save_result_file(meeting_id: str, result: dict) -> None:
+    """Persist kết quả của từng meeting xuống disk."""
+    _ensure_summary_dir()
+    file_path = _result_file_path(meeting_id)
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2)
 
 
 # ============================================================
@@ -227,7 +257,7 @@ async def analyze_meeting(
 
         # Lưu cache
         _results_cache[meeting_id] = result
-        background_tasks.add_task(_save_results_cache)
+        background_tasks.add_task(_save_result_file, meeting_id, result)
 
         return JSONResponse(content={**result, "from_cache": False})
 
@@ -287,6 +317,17 @@ async def get_analysis_result(meeting_id: str):
     if meeting_id in _results_cache:
         return JSONResponse(content=_results_cache[meeting_id])
 
+    file_path = _result_file_path(meeting_id)
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            _results_cache[meeting_id] = data
+            return JSONResponse(content=data)
+        except Exception as e:
+            logger.error(f"Lỗi đọc file kết quả cho meeting {meeting_id}: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
+
     raise HTTPException(
         status_code=404,
         detail=f"Chưa có kết quả phân tích cho meeting '{meeting_id}'. Hãy gọi /analyze trước."
@@ -298,7 +339,13 @@ async def delete_meeting(meeting_id: str):
     """Xóa toàn bộ dữ liệu của một meeting."""
     deleted = rag_engine.delete_meeting(meeting_id)
     _results_cache.pop(meeting_id, None)
-    _save_results_cache()
+
+    file_path = _result_file_path(meeting_id)
+    if os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+        except OSError as e:
+            logger.warning(f"Không thể xóa file kết quả '{file_path}': {e}")
 
     return {
         "meeting_id": meeting_id,

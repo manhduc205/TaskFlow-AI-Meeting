@@ -2,13 +2,11 @@
 llm_service.py — Phase 4: Token Budget Manager + LLM Integration
 - Token Budget: kiểm soát context window, trim chunks nếu vượt giới hạn
 - Auto-Retry: Exponential Backoff cho lỗi 429 / 503
-- analyze_meeting(): phân tích toàn bộ cuộc họp → JSON 4 trường
+- analyze_meeting(): phân tích toàn bộ cuộc họp → RAW output
 - chat(): Q&A với AI dựa trên context chunks đã retrieve
 """
 
 import os
-import re
-import json
 import time
 import logging
 from typing import List, Optional
@@ -17,7 +15,7 @@ from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 
-from models import MeetingChunk, MeetingAnalysisResult
+from models import MeetingChunk
 from text_utils import count_words
 
 load_dotenv()
@@ -30,6 +28,10 @@ MODEL_NAME = "gemini-3-flash-preview"          # model production ổn định
 TOKEN_BUDGET_WORDS = 15_000              # giới hạn từ gửi cho LLM
 MAX_RETRIES = 3                          # số lần retry tối đa
 RETRY_BASE_SECONDS = 5                   # thời gian chờ cơ bản (s)
+PROMPT_PATH = os.getenv(
+    "PROMPT_PATH",
+    os.path.join(os.path.dirname(__file__), "summary_prompt.txt"),
+)
 
 # Lỗi có thể retry
 RETRYABLE_ERRORS = (429, 503, 500)
@@ -78,7 +80,7 @@ class LLMService:
     Tầng tích hợp Gemini API với:
     - Fault-tolerant Auto-Retry (Exponential Backoff)
     - Token Budget Management
-    - Strict JSON output enforcement
+    - Prompt file loading
     """
 
     def __init__(self):
@@ -89,24 +91,7 @@ class LLMService:
         self.client = genai.Client(api_key=api_key)
         self.model_name = MODEL_NAME
         self.budget_manager = TokenBudgetManager()
-
-        self._system_instruction = (
-            "Bạn là Thư ký dự án cấp cao và Chuyên gia phân tích dữ liệu AI. "
-            "Nhiệm vụ: trích xuất thông tin từ biên bản cuộc họp với độ chính xác tuyệt đối.\n\n"
-            "NGUYÊN TẮC BẮT BUỘC:\n"
-            "1. GROUNDING: CHỈ dùng thông tin có trong transcript. KHÔNG suy diễn hay thêm kiến thức ngoài.\n"
-            "2. EXHAUSTIVE SCAN: Đọc toàn bộ văn bản, không bỏ qua câu nào.\n"
-            "3. NO MISSING INFO: Nếu thông tin không có trong transcript → ghi 'Không tìm thấy'.\n"
-            "4. TASK EXTRACTION: Trích xuất TẤT CẢ công việc, kể cả nhỏ nhất.\n"
-            "5. OUTPUT: Trả về JSON hợp lệ, KHÔNG có markdown code fence.\n"
-        )
-
-        self._chat_system_instruction = (
-            "Bạn là AI Assistant chuyên phân tích nội dung cuộc họp. "
-            "Trả lời câu hỏi của người dùng DỰA TRÊN và CHỈ DỰA TRÊN nội dung cuộc họp được cung cấp. "
-            "Nếu thông tin không có trong cuộc họp, hãy nói rõ: 'Nội dung này không được đề cập trong cuộc họp.'\n"
-            "Trả lời bằng tiếng Việt, ngắn gọn, rõ ràng."
-        )
+        self.prompt_text = self._load_prompt_text(PROMPT_PATH)
 
         print(f"[*] LLMService khởi tạo thành công (model: {self.model_name})")
 
@@ -114,17 +99,40 @@ class LLMService:
     # INTERNAL HELPERS
     # ============================================================
 
-    def _clean_json_response(self, raw: str) -> str:
-        """Loại bỏ markdown code fence và khoảng trắng thừa."""
-        clean = re.sub(r"```(?:json)?|```", "", raw).strip()
-        return clean
+    def _load_prompt_text(self, path: str) -> str:
+        """Load prompt template từ file, hỗ trợ nội dung dạng string có escape."""
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"[!] Không tìm thấy prompt file: {path}")
+
+        with open(path, "r", encoding="utf-8") as f:
+            raw = f.read().strip()
+
+        # Strip wrapping quotes if file stores a quoted string.
+        if len(raw) >= 2 and raw[0] == raw[-1] and raw[0] in {"\"", "'"}:
+            raw = raw[1:-1]
+
+        # Unescape common sequences like \n to real newlines.
+        if "\\" in raw:
+            raw = raw.encode("utf-8").decode("unicode_escape")
+
+        return raw
+
+    def _build_prompt(self, context: str, query: Optional[str] = None) -> str:
+        """Kết hợp prompt template với context và câu hỏi (nếu có)."""
+        prompt = self.prompt_text
+        if not prompt.endswith("\n"):
+            prompt += "\n"
+        prompt += context
+        if query:
+            prompt += f"\n\nUser Query:\n{query}"
+        return prompt
 
     def _call_api_with_retry(
         self,
         contents: str,
-        system_instruction: str,
+        system_instruction: str = "",
         temperature: float = 0.1,
-        response_mime_type: str = "application/json",
+        response_mime_type: str = "text/plain",
     ) -> str:
         """
         Gọi Gemini API với Auto-Retry Exponential Backoff.
@@ -186,7 +194,7 @@ class LLMService:
         meeting_id: str = "unknown",
     ) -> dict:
         """
-        Phân tích toàn bộ cuộc họp → JSON 4 trường.
+        Phân tích toàn bộ cuộc họp → RAW output.
 
         Args:
             chunks   : Danh sách MeetingChunk (ưu tiên)
@@ -194,7 +202,7 @@ class LLMService:
             meeting_id: ID cuộc họp
 
         Returns:
-            dict với keys: summary, key_technical_points, decisions, tasks
+            dict với keys: meeting_id, result
         """
         print(f"[*] LLM đang phân tích meeting '{meeting_id}'...")
 
@@ -209,51 +217,26 @@ class LLMService:
         else:
             raise ValueError("Cần cung cấp chunks hoặc full_text")
 
-        prompt = f"""Phân tích bản bóc băng cuộc họp dưới đây và trả về JSON hợp lệ.
-
-NỘI DUNG CUỘC HỌP:
-{context}
-
-YÊU CẦU ĐẦU RA (JSON STRICT):
-{{
-    "summary": "Tóm tắt đầy đủ và trung thực toàn bộ cuộc họp theo trình tự thời gian. Không bỏ sót thông tin quan trọng nào.",
-    "key_technical_points": [
-        "Điểm kỹ thuật / thuật ngữ / quyết định kỹ thuật quan trọng được thảo luận"
-    ],
-    "decisions": [
-        "Các quyết định cuối cùng đã được thống nhất trong cuộc họp"
-    ],
-    "tasks": [
-        {{
-            "task_name": "Mô tả chi tiết công việc cần làm",
-            "assignee": "Tên người chịu trách nhiệm (ghi 'Chưa rõ' nếu không đề cập)",
-            "deadline": "Thời hạn (ghi 'Không có' nếu không đề cập)",
-            "priority": "Cao / Trung bình / Thấp"
-        }}
-    ]
-}}"""
+        prompt = self._build_prompt(context)
 
         try:
             raw = self._call_api_with_retry(
                 contents=prompt,
-                system_instruction=self._system_instruction,
+                system_instruction="",
                 temperature=0.1,
-                response_mime_type="application/json",
+                response_mime_type="text/plain",
             )
-            cleaned = self._clean_json_response(raw)
-            result = json.loads(cleaned)
-            result["meeting_id"] = meeting_id
-            print(f"[+] Phân tích xong: {len(result.get('tasks', []))} tasks tìm thấy.")
-            return result
+            print("[+] Phân tích xong.")
+            return {
+                "meeting_id": meeting_id,
+                "result": raw,
+            }
 
         except Exception as e:
             logger.error(f"[!] Lỗi analyze_meeting: {e}")
             return {
                 "meeting_id": meeting_id,
-                "summary": f"Lỗi hệ thống: {str(e)}",
-                "key_technical_points": [],
-                "decisions": [],
-                "tasks": [],
+                "result": f"Lỗi hệ thống: {str(e)}",
             }
 
     def chat(
@@ -281,28 +264,19 @@ YÊU CẦU ĐẦU RA (JSON STRICT):
         context = self._build_context_block(context_chunks)
 
         # Build history block nếu có
-        history_block = ""
         if conversation_history:
             lines = []
             for msg in conversation_history[-6:]:  # Giữ 6 lượt gần nhất
                 role = "Người dùng" if msg.get("role") == "user" else "AI"
                 lines.append(f"{role}: {msg.get('text', '')}")
-            history_block = "\n\nLỊCH SỬ HỘI THOẠI TRƯỚC:\n" + "\n".join(lines)
+            context += "\n\nConversation History:\n" + "\n".join(lines)
 
-        prompt = f"""Dưới đây là các đoạn hội thoại liên quan từ cuộc họp:
-
-CONTEXT CUỘC HỌP:
-{context}
-{history_block}
-
-CÂU HỎI: {query}
-
-Hãy trả lời câu hỏi dựa hoàn toàn vào nội dung cuộc họp ở trên."""
+        prompt = self._build_prompt(context, query=query)
 
         try:
             answer = self._call_api_with_retry(
                 contents=prompt,
-                system_instruction=self._chat_system_instruction,
+                system_instruction="",
                 temperature=0.3,
                 response_mime_type="text/plain",
             )

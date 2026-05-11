@@ -47,7 +47,7 @@ print(f"[+] Model tải xong trong {time.time() - t0:.2f}s.\n")
 # THỰC THI BÓC BĂNG
 # ============================================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-AUDIO_FILE = os.path.join(BASE_DIR, "test_audio", "meeting.mp3")
+AUDIO_FILE = os.path.join(BASE_DIR, "test_audio", "rag.mp3")
 
 if not os.path.exists(AUDIO_FILE):
     print(f"[!] Không tìm thấy: {AUDIO_FILE}")

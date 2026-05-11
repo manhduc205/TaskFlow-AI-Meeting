@@ -17,8 +17,10 @@ import os
 import sys
 import json
 import argparse
+import re
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SUMMARY_RESULTS_DIR = os.path.join(BASE_DIR, "summary_results")
 
 
 def run_analyze(meeting_id: str, transcript_path: str, force: bool = False):
@@ -78,7 +80,9 @@ def run_analyze(meeting_id: str, transcript_path: str, force: bool = False):
     print("\n" + "─" * 65)
 
     # Lưu JSON
-    out_path = os.path.join(BASE_DIR, "analysis_result.json")
+    os.makedirs(SUMMARY_RESULTS_DIR, exist_ok=True)
+    safe_id = re.sub(r"[^A-Za-z0-9_-]+", "_", meeting_id).strip("_") or "meeting"
+    out_path = os.path.join(SUMMARY_RESULTS_DIR, f"{safe_id}.json")
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
     print(f"💾  Đã xuất kết quả: {out_path}")
@@ -172,7 +176,7 @@ def main():
     parser.add_argument("--meeting_id", default="demo_meeting", help="ID cuộc họp")
     parser.add_argument(
         "--transcript",
-        default=os.path.join(BASE_DIR, "transcript", "meeting.txt"),
+        default=os.path.join(BASE_DIR, "transcript", "rag.txt"),
         help="Đường dẫn file transcript (.txt hoặc .json Whisper segments)",
     )
     parser.add_argument("--query", default="", help="Câu hỏi (dùng cho --mode chat)")
