@@ -7,18 +7,18 @@ Trái tim của hệ thống RAG:
 """
 
 import os
-import re
 import json
 import uuid
 import concurrent.futures
-from typing import List, Dict, Any, Tuple, Optional
+from typing import List, Dict, Tuple, Optional
 
+import torch  # Bổ sung thư viện torch để nhận diện phần cứng
 import chromadb
 from chromadb.utils import embedding_functions
 from rank_bm25 import BM25Okapi
 
 from models import MeetingChunk
-from text_utils import normalize_text, split_into_sentences
+from utils.text_utils import normalize_text, split_into_sentences
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -31,9 +31,7 @@ TOP_K_RETRIEVAL = 20            # số kết quả lấy từ mỗi kho
 TOP_K_FINAL = 15                # số chunk cuối sau RRF
 RRF_K = 60                      # hằng số RRF (thường dùng 60)
 
-# Model embedding mặc định (nhẹ, nhanh trên CPU)
-# Để dùng BAAI/bge-m3 (chất lượng cao hơn, cần ~2GB RAM):
-#   đổi EMBEDDING_MODEL = "BAAI/bge-m3"
+# Model embedding mặc định
 EMBEDDING_MODEL = "intfloat/multilingual-e5-base"
 
 
@@ -48,13 +46,15 @@ class RAGEngine:
     def __init__(self, persist_directory: str = "./chroma_db"):
         self.persist_directory = persist_directory
 
-        print(f"[*] Khởi tạo RAGEngine (model: {EMBEDDING_MODEL})...")
+        # THUẬT TOÁN ĐỘNG: Tự động nhận diện phần cứng
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        print(f"[*] Khởi tạo RAGEngine (model: {EMBEDDING_MODEL}) trên thiết bị: [{self.device.upper()}]...")
 
         # Kho 1: ChromaDB
         self.chroma_client = chromadb.PersistentClient(path=persist_directory)
         self.embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
             model_name=EMBEDDING_MODEL,
-            device="cpu",
+            device=self.device,  # Sử dụng biến tự động gán thay vì hardcode
         )
         self.collection = self.chroma_client.get_or_create_collection(
             name="meeting_chunks",
@@ -75,12 +75,6 @@ class RAGEngine:
     # ============================================================
 
     def _chunk_from_segments(self, segments: List[Dict]) -> List[Dict]:
-        """
-        Semantic chunking từ Whisper JSON segments (có timestamp).
-        Ngắt chunk khi:
-          - Silence gap giữa segment hiện tại và tiếp theo > SILENCE_GAP_THRESHOLD
-          - HOẶC chunk đã vượt MAX_CHUNK_CHARS
-        """
         chunks = []
         current_texts: List[str] = []
         current_start: Optional[float] = None
@@ -98,10 +92,8 @@ class RAGEngine:
             if current_start is None:
                 current_start = start
 
-            # Kiểm tra điều kiện ngắt
             should_break = False
             if current_texts:
-                # Tính silence gap: start của segment này - end của segment trước
                 prev_end = float(segments[i - 1].get("end", start)) if i > 0 else start
                 silence = start - prev_end
                 if silence > SILENCE_GAP_THRESHOLD:
@@ -123,7 +115,6 @@ class RAGEngine:
             current_end = end
             current_chars += len(text)
 
-        # Chunk cuối cùng
         if current_texts:
             chunks.append({
                 "text": " ".join(current_texts),
@@ -134,10 +125,6 @@ class RAGEngine:
         return chunks
 
     def _chunk_from_plain_text(self, text: str) -> List[Dict]:
-        """
-        Fallback chunking từ plain text (không có timestamp).
-        Tách theo câu, gộp đến MAX_CHUNK_CHARS.
-        """
         sentences = split_into_sentences(text)
         chunks = []
         current_texts: List[str] = []
@@ -176,12 +163,7 @@ class RAGEngine:
         raw_text: Optional[str] = None,
         force_reingest: bool = False,
     ) -> List[MeetingChunk]:
-        """
-        Ghi dữ liệu vào 3 kho: ChromaDB + BM25 + Metadata Cache.
-        Ưu tiên đầu vào: segments_json_path > transcript_path > raw_text.
-        Idempotent: bỏ qua nếu meeting đã tồn tại (trừ khi force_reingest=True).
-        """
-        # Idempotency check
+
         if not force_reingest:
             existing = self.collection.get(
                 where={"meeting_id": meeting_id}, limit=1
@@ -191,7 +173,6 @@ class RAGEngine:
                 self._rebuild_bm25_from_chroma(meeting_id)
                 return []
 
-        # Parse input → raw chunks
         raw_chunks: List[Dict] = []
 
         if segments_json_path and os.path.exists(segments_json_path):
@@ -216,7 +197,6 @@ class RAGEngine:
         if not raw_chunks:
             raise ValueError("Không tạo được chunks từ dữ liệu đầu vào")
 
-        # Tạo MeetingChunk objects
         meeting_chunks: List[MeetingChunk] = []
         for i, chunk in enumerate(raw_chunks):
             mc = MeetingChunk(
@@ -230,7 +210,6 @@ class RAGEngine:
             )
             meeting_chunks.append(mc)
 
-        # Xóa dữ liệu cũ nếu force_reingest
         if force_reingest:
             old = self.collection.get(where={"meeting_id": meeting_id})
             if old and old["ids"]:
@@ -238,8 +217,11 @@ class RAGEngine:
                 print(f"[*] Đã xóa {len(old['ids'])} chunks cũ của '{meeting_id}'")
 
         # === KHO 1: ChromaDB (Vector Store) ===
-        print(f"[*] Vectorizing {len(meeting_chunks)} chunks → ChromaDB...")
-        BATCH = 50
+        print(f"[*] Vectorizing {len(meeting_chunks)} chunks → ChromaDB ({self.device.upper()})...")
+
+        # TỐI ƯU VÒNG LẶP: Đẩy lượng nạp song song lên 256 nếu có GPU CUDA
+        BATCH = 256 if self.device == "cuda" else 50
+
         for b in range(0, len(meeting_chunks), BATCH):
             batch = meeting_chunks[b:b + BATCH]
             self.collection.add(
@@ -266,7 +248,6 @@ class RAGEngine:
         return meeting_chunks
 
     def _rebuild_bm25_from_chroma(self, meeting_id: str):
-        """Rebuild BM25 index từ ChromaDB khi khởi động lại server."""
         if meeting_id in self._bm25_indices:
             return
 
@@ -312,7 +293,6 @@ class RAGEngine:
     def _vector_search(
         self, query_norm: str, meeting_id: str, top_k: int
     ) -> List[Tuple[str, float]]:
-        """Vector similarity search trong ChromaDB."""
         count = self.collection.count()
         if count == 0:
             return []
@@ -324,7 +304,6 @@ class RAGEngine:
         )
         if not results["ids"] or not results["ids"][0]:
             return []
-        # cosine distance → similarity
         return [
             (cid, 1.0 - dist)
             for cid, dist in zip(results["ids"][0], results["distances"][0])
@@ -333,7 +312,6 @@ class RAGEngine:
     def _bm25_search(
         self, query_norm: str, meeting_id: str, top_k: int
     ) -> List[Tuple[str, float]]:
-        """BM25 keyword search trong in-memory index."""
         if meeting_id not in self._bm25_indices:
             self._rebuild_bm25_from_chroma(meeting_id)
         if meeting_id not in self._bm25_indices:
@@ -352,10 +330,6 @@ class RAGEngine:
         bm25_results: List[Tuple[str, float]],
         k: int = RRF_K,
     ) -> List[Tuple[str, float]]:
-        """
-        Reciprocal Rank Fusion:
-          Score_RRF(d) = 1/(k + rank_vector) + 1/(k + rank_bm25)
-        """
         scores: Dict[str, float] = {}
         for rank, (cid, _) in enumerate(vector_results, start=1):
             scores[cid] = scores.get(cid, 0.0) + 1.0 / (k + rank)
@@ -369,20 +343,9 @@ class RAGEngine:
         meeting_id: str,
         top_k: int = TOP_K_FINAL,
     ) -> List[MeetingChunk]:
-        """
-        Pipeline truy vấn hybrid đầy đủ:
-        1. Normalize query
-        2. Song song: Vector Top-20 + BM25 Top-20
-        3. RRF Fusion → Top-15
-        4. Context Windowing (chunk_index ± 1)
-        5. Deduplication bằng Set
-        6. Sort theo timeline (chunk_index tăng dần)
-        """
-        # Bước 1: Normalize query
         query_norm = normalize_text(query)
         print(f"\n[*] Hybrid retrieve: '{query[:60]}...' | norm: '{query_norm[:50]}...'")
 
-        # Bước 2: Song song hóa
         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as exe:
             f_vec = exe.submit(self._vector_search, query_norm, meeting_id, TOP_K_RETRIEVAL)
             f_bm25 = exe.submit(self._bm25_search, query_norm, meeting_id, TOP_K_RETRIEVAL)
@@ -391,10 +354,8 @@ class RAGEngine:
 
         print(f"[*] Vector: {len(vec_res)} | BM25: {len(bm25_res)}")
 
-        # Bước 3: RRF Fusion
         fused = self._rrf_fusion(vec_res, bm25_res)[:top_k]
 
-        # Bước 4: Context Windowing — lấy chunk_index ± 1
         target_indices: set = set()
         for cid, _ in fused:
             if cid in self._metadata_cache:
@@ -402,7 +363,6 @@ class RAGEngine:
                 target_indices.update([ci - 1, ci, ci + 1])
         target_indices = {i for i in target_indices if i >= 0}
 
-        # Bước 5: Lọc và dedup từ cache
         seen: set = set()
         candidates = []
         for cid, cache in self._metadata_cache.items():
@@ -413,10 +373,8 @@ class RAGEngine:
                 seen.add(ci)
                 candidates.append((cid, cache))
 
-        # Bước 6: Sort theo timeline
         candidates.sort(key=lambda x: x[1]["chunk_index"])
 
-        # Reconstruct MeetingChunk
         result = []
         for cid, cache in candidates:
             result.append(MeetingChunk(
@@ -433,7 +391,6 @@ class RAGEngine:
         return result
 
     def get_all_chunks(self, meeting_id: str) -> List[MeetingChunk]:
-        """Lấy toàn bộ chunks của một meeting (dùng cho phân tích tổng quan)."""
         results = self.collection.get(
             where={"meeting_id": meeting_id},
             include=["documents", "metadatas"],
@@ -462,21 +419,18 @@ class RAGEngine:
         return chunks
 
     def meeting_exists(self, meeting_id: str) -> bool:
-        """Kiểm tra meeting đã được ingest chưa."""
         existing = self.collection.get(
             where={"meeting_id": meeting_id}, limit=1
         )
         return bool(existing and existing["ids"])
 
     def delete_meeting(self, meeting_id: str) -> int:
-        """Xóa toàn bộ dữ liệu của một meeting."""
         existing = self.collection.get(where={"meeting_id": meeting_id})
         if not existing or not existing["ids"]:
             return 0
         self.collection.delete(ids=existing["ids"])
         count = len(existing["ids"])
 
-        # Xóa khỏi BM25 và cache
         self._bm25_indices.pop(meeting_id, None)
         for cid in existing["ids"]:
             self._metadata_cache.pop(cid, None)

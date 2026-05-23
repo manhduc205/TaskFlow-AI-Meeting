@@ -18,6 +18,7 @@ import sys
 import json
 import argparse
 import re
+import time
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SUMMARY_RESULTS_DIR = os.path.join(BASE_DIR, "summary_results")
@@ -25,8 +26,8 @@ SUMMARY_RESULTS_DIR = os.path.join(BASE_DIR, "summary_results")
 
 def run_analyze(meeting_id: str, transcript_path: str, force: bool = False):
     """Pipeline phân tích đầy đủ."""
-    from rag_engine import RAGEngine
-    from llm_service import LLMService
+    from core.rag_engine import RAGEngine
+    from core.llm_service import LLMService
 
     print("=" * 65)
     print("🚀  TASKFLOW AI — MEETING ANALYSIS PIPELINE v2.0")
@@ -54,28 +55,18 @@ def run_analyze(meeting_id: str, transcript_path: str, force: bool = False):
 
     # Step 3: LLM phân tích
     print(f"\n🧠  [3/3] Gemini đang phân tích...")
+    analyze_started_at = time.perf_counter()
     result = llm.analyze_meeting(chunks=all_chunks, meeting_id=meeting_id)
+    analyze_elapsed_s = time.perf_counter() - analyze_started_at
 
     # In báo cáo
     print("\n" + "─" * 65)
     print("📝  BÁO CÁO PHÂN TÍCH CUỘC HỌP")
     print("─" * 65)
+    print(f"\n[THỜI GIAN TÓM TẮT]: {analyze_elapsed_s:.2f}s")
 
-    print("\n[TÓM TẮT]:")
-    print(result.get("summary", "N/A"))
-
-    print("\n[ĐIỂM KỸ THUẬT CHÍNH]:")
-    for pt in result.get("key_technical_points", []):
-        print(f"  • {pt}")
-
-    print("\n[QUYẾT ĐỊNH]:")
-    for dec in result.get("decisions", []):
-        print(f"  ✓ {dec}")
-
-    print(f"\n[DANH SÁCH CÔNG VIỆC] ({len(result.get('tasks', []))} tasks):")
-    for i, task in enumerate(result.get("tasks", []), 1):
-        print(f"  {i}. {task.get('task_name', 'N/A')}")
-        print(f"     👤 {task.get('assignee', 'Chưa rõ')}  |  ⏰ {task.get('deadline', 'Không có')}  |  🔥 {task.get('priority', 'N/A')}")
+    print("\n[KẾT QUẢ RAW]:")
+    print(result.get("result", "N/A"))
 
     print("\n" + "─" * 65)
 
@@ -92,8 +83,8 @@ def run_analyze(meeting_id: str, transcript_path: str, force: bool = False):
 
 def run_chat(meeting_id: str, query: str):
     """Pipeline chat với meeting đã ingest."""
-    from rag_engine import RAGEngine
-    from llm_service import LLMService
+    from core.rag_engine import RAGEngine
+    from core.llm_service import LLMService
 
     print("=" * 65)
     print("💬  TASKFLOW AI — CHAT MODE")
@@ -125,8 +116,8 @@ def run_chat(meeting_id: str, query: str):
 
 def run_interactive_chat(meeting_id: str):
     """Chat mode tương tác (multi-turn)."""
-    from rag_engine import RAGEngine
-    from llm_service import LLMService
+    from core.rag_engine import RAGEngine
+    from core.llm_service import LLMService
 
     rag = RAGEngine(persist_directory=os.path.join(BASE_DIR, "chroma_db"))
     llm = LLMService()

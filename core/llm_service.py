@@ -9,14 +9,14 @@ llm_service.py — Phase 4: Token Budget Manager + LLM Integration
 import os
 import time
 import logging
-from typing import List, Optional
+from typing import List, Optional, Iterator
 
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 
 from models import MeetingChunk
-from text_utils import count_words
+from utils.text_utils import count_words
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -30,7 +30,9 @@ MAX_RETRIES = 3                          # số lần retry tối đa
 RETRY_BASE_SECONDS = 5                   # thời gian chờ cơ bản (s)
 PROMPT_PATH = os.getenv(
     "PROMPT_PATH",
-    os.path.join(os.path.dirname(__file__), "summary_prompt.txt"),
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "prompts", "summary_prompt.txt")
+    ),
 )
 
 # Lỗi có thể retry
@@ -176,6 +178,60 @@ class LLMService:
 
         raise RuntimeError(f"API thất bại sau {MAX_RETRIES} lần retry")
 
+    def _call_api_stream_with_retry(
+        self,
+        contents: str,
+        system_instruction: str = "",
+        temperature: float = 0.1,
+        response_mime_type: str = "text/plain",
+    ) -> Iterator[str]:
+        """
+        Gọi Gemini API với streaming. Chỉ retry nếu lỗi xảy ra trước khi stream bắt đầu.
+        """
+        wait = RETRY_BASE_SECONDS
+        for attempt in range(1, MAX_RETRIES + 1):
+            yielded_any = False
+            try:
+                stream = self.client.models.generate_content_stream(
+                    model=self.model_name,
+                    contents=contents,
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_instruction,
+                        temperature=temperature,
+                        response_mime_type=response_mime_type,
+                    ),
+                )
+                for chunk in stream:
+                    text = getattr(chunk, "text", None)
+                    if text:
+                        yielded_any = True
+                        yield text
+                return
+
+            except Exception as e:
+                error_str = str(e)
+                is_retryable = any(
+                    str(code) in error_str for code in RETRYABLE_ERRORS
+                )
+
+                if yielded_any:
+                    raise
+                if is_retryable and attempt < MAX_RETRIES:
+                    logger.warning(
+                        f"[!] Lỗi API (attempt {attempt}/{MAX_RETRIES}): {e}. "
+                        f"Đợi {wait}s..."
+                    )
+                    print(
+                        f"[!] Lỗi API (attempt {attempt}/{MAX_RETRIES}): {e}. "
+                        f"Retry sau {wait}s..."
+                    )
+                    time.sleep(wait)
+                    wait *= 2
+                else:
+                    raise
+
+        raise RuntimeError(f"API thất bại sau {MAX_RETRIES} lần retry")
+
     def _build_context_block(self, chunks: List[MeetingChunk]) -> str:
         """Build chuỗi context từ danh sách chunks, kèm timestamp."""
         lines = []
@@ -285,3 +341,38 @@ class LLMService:
         except Exception as e:
             logger.error(f"[!] Lỗi chat: {e}")
             return f"Xin lỗi, đã xảy ra lỗi khi xử lý câu hỏi: {str(e)}"
+
+    def chat_stream(
+        self,
+        query: str,
+        context_chunks: List[MeetingChunk],
+        conversation_history: Optional[List[dict]] = None,
+    ) -> Iterator[str]:
+        """Stream câu trả lời để client nhận được ngay khi model sinh token."""
+        if not context_chunks:
+            yield "Không tìm thấy thông tin liên quan đến câu hỏi của bạn trong cuộc họp này."
+            return
+
+        context_chunks = self.budget_manager.trim_chunks(context_chunks)
+        context = self._build_context_block(context_chunks)
+
+        if conversation_history:
+            lines = []
+            for msg in conversation_history[-6:]:
+                role = "Người dùng" if msg.get("role") == "user" else "AI"
+                lines.append(f"{role}: {msg.get('text', '')}")
+            context += "\n\nConversation History:\n" + "\n".join(lines)
+
+        prompt = self._build_prompt(context, query=query)
+
+        try:
+            for piece in self._call_api_stream_with_retry(
+                contents=prompt,
+                system_instruction="",
+                temperature=0.3,
+                response_mime_type="text/plain",
+            ):
+                yield piece
+        except Exception as e:
+            logger.error(f"[!] Lỗi chat stream: {e}")
+            yield f"Xin lỗi, đã xảy ra lỗi khi xử lý câu hỏi: {str(e)}"

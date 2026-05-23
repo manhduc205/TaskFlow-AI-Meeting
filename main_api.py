@@ -3,11 +3,12 @@ main_api.py — Phase 5: FastAPI Controller
 Tầng Controller sẵn sàng cho Spring Boot gọi sang qua HTTP.
 
 Endpoints:
-  POST /api/v1/meetings/{meeting_id}/ingest   — Upload transcript & ingest
-  POST /api/v1/meetings/{meeting_id}/analyze  — Phân tích toàn bộ meeting
-  POST /api/v1/meetings/{meeting_id}/chat     — Q&A với AI
-  GET  /api/v1/meetings/{meeting_id}/result   — Lấy kết quả đã cache
-  GET  /api/v1/health                         — Health check
+  POST /api/v1/meetings/{meeting_id}/ingest          — Upload transcript & ingest
+  POST /api/v1/meetings/{meeting_id}/ingest-youtube  — Cào phụ đề YouTube & ingest
+  POST /api/v1/meetings/{meeting_id}/analyze         — Phân tích toàn bộ meeting
+  POST /api/v1/meetings/{meeting_id}/chat            — Q&A với AI
+  GET  /api/v1/meetings/{meeting_id}/result          — Lấy kết quả đã cache
+  GET  /api/v1/health                                — Health check
 
 Chạy: uvicorn main_api:app --host 0.0.0.0 --port 8000 --reload
 """
@@ -20,11 +21,11 @@ import re
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
-from rag_engine import RAGEngine
-from llm_service import LLMService
+from core.rag_engine import RAGEngine
+from core.llm_service import LLMService
 
 logging.basicConfig(
     level=logging.INFO,
@@ -113,6 +114,11 @@ class IngestRequest(BaseModel):
     force_reingest: bool = False
 
 
+class IngestYoutubeRequest(BaseModel):
+    url: str
+    force_reingest: bool = False
+
+
 class AnalyzeRequest(BaseModel):
     use_all_chunks: bool = True    # True = phân tích toàn bộ, False = dùng RAG
 
@@ -120,6 +126,7 @@ class AnalyzeRequest(BaseModel):
 class ChatRequest(BaseModel):
     query: str
     conversation_history: Optional[List[dict]] = None
+    stream: bool = True
 
 
 class ChatResponse(BaseModel):
@@ -224,6 +231,51 @@ async def ingest_meeting(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.post("/api/v1/meetings/{meeting_id}/ingest-youtube", response_model=IngestResponse)
+async def ingest_youtube_meeting(
+    meeting_id: str,
+    request: IngestYoutubeRequest
+):
+    """
+    Tích hợp cào phụ đề từ link YouTube và tự động nạp vào hệ thống RAG.
+    Mọi bước phân tích (/analyze) và hỏi đáp (/chat) phía sau sẽ giữ nguyên 100%.
+    """
+    try:
+        logger.info(f"[*] Đang cào transcript YouTube từ URL: {request.url}")
+
+        # Gọi helper trích xuất YouTube Transcript
+        from utils.ytb_text_utils import get_youtube_transcript_as_text
+        youtube_text_content = get_youtube_transcript_as_text(request.url)
+
+        # Đẩy thẳng chuỗi văn bản vào RAGEngine
+        chunks = rag_engine.ingest(
+            meeting_id=meeting_id,
+            transcript_path=None,
+            segments_json_path=None,
+            raw_text=youtube_text_content,
+            force_reingest=request.force_reingest,
+        )
+
+        if not chunks and not request.force_reingest:
+            return IngestResponse(
+                meeting_id=meeting_id,
+                chunks_created=0,
+                status="skipped",
+                message=f"Dữ liệu video '{meeting_id}' đã tồn tại trong hệ thống.",
+            )
+
+        return IngestResponse(
+            meeting_id=meeting_id,
+            chunks_created=len(chunks),
+            status="success",
+            message=f"Đã trích xuất và nạp thành công {len(chunks)} chunks từ YouTube.",
+        )
+
+    except Exception as e:
+        logger.error(f"[!] Lỗi khi xử lý video YouTube {meeting_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/api/v1/meetings/{meeting_id}/analyze")
 async def analyze_meeting(
     meeting_id: str,
@@ -231,13 +283,13 @@ async def analyze_meeting(
     background_tasks: BackgroundTasks,
 ):
     """
-    Phân tích toàn bộ cuộc họp → JSON 4 trường.
+    Phân tích toàn bộ cuộc họp → JSON kết quả.
     Kết quả được cache lại để tái sử dụng.
     """
     if not rag_engine.meeting_exists(meeting_id):
         raise HTTPException(
             status_code=404,
-            detail=f"Meeting '{meeting_id}' chưa được ingest. Hãy gọi /ingest trước."
+            detail=f"Meeting '{meeting_id}' chưa được ingest. Hãy gọi /ingest hoặc /ingest-youtube trước."
         )
 
     # Trả về cache nếu đã có
@@ -293,7 +345,22 @@ async def chat_with_meeting(
             meeting_id=meeting_id,
         )
 
-        # LLM Q&A
+        if request.stream:
+            def _stream_generator():
+                for piece in llm_service.chat_stream(
+                    query=request.query,
+                    context_chunks=context_chunks,
+                    conversation_history=request.conversation_history,
+                ):
+                    yield piece
+
+            return StreamingResponse(
+                _stream_generator(),
+                media_type="text/plain",
+                headers={"Cache-Control": "no-cache"},
+            )
+
+        # LLM Q&A (non-stream)
         answer = llm_service.chat(
             query=request.query,
             context_chunks=context_chunks,
