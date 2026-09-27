@@ -1,378 +1,499 @@
-"""
-llm_service.py — Phase 4: Token Budget Manager + LLM Integration
-- Token Budget: kiểm soát context window, trim chunks nếu vượt giới hạn
-- Auto-Retry: Exponential Backoff cho lỗi 429 / 503
-- analyze_meeting(): phân tích toàn bộ cuộc họp → RAW output
-- chat(): Q&A với AI dựa trên context chunks đã retrieve
-"""
+"""Gemini integration for local Markdown summaries and timestamp-grounded chat."""
 
-import os
-import time
+from __future__ import annotations
+
 import logging
-from typing import List, Optional, Iterator
+import time
+from pathlib import Path
+from typing import Callable, Iterator, Sequence
 
 from google import genai
 from google.genai import types
-from dotenv import load_dotenv
 
-from models import MeetingChunk
-from utils.text_utils import count_words
+from core.config import PROJECT_ROOT, Settings
 
-load_dotenv()
+
 logger = logging.getLogger(__name__)
-
-# ============================================================
-# CẤU HÌNH
-# ============================================================
-MODEL_NAME = "gemini-3-flash-preview"          # model production ổn định
-TOKEN_BUDGET_WORDS = 15_000              # giới hạn từ gửi cho LLM
-MAX_RETRIES = 3                          # số lần retry tối đa
-RETRY_BASE_SECONDS = 5                   # thời gian chờ cơ bản (s)
-PROMPT_PATH = os.getenv(
-    "PROMPT_PATH",
-    os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "prompts", "summary_prompt.txt")
-    ),
-)
-
-# Lỗi có thể retry
-RETRYABLE_ERRORS = (429, 503, 500)
+EventCallback = Callable[[str], None]
+RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
 
 
-class TokenBudgetManager:
-    """
-    Quản lý ngân sách token gửi cho LLM.
-    Trim chunks có RRF score thấp nhất nếu context vượt giới hạn.
-    """
+def estimate_tokens(text: str) -> int:
+    """Conservative local estimate for mixed Vietnamese/English content."""
+    return max(1, len(text) // 3)
 
-    def __init__(self, max_words: int = TOKEN_BUDGET_WORDS):
-        self.max_words = max_words
 
-    def trim_chunks(self, chunks: List[MeetingChunk]) -> List[MeetingChunk]:
-        """
-        Kiểm tra tổng số từ. Nếu vượt giới hạn:
-        - Cắt bỏ từ cuối danh sách (chunks có score thấp hơn)
-        - Giữ nguyên thứ tự timeline
-        """
-        total_words = sum(count_words(c.raw_text) for c in chunks)
+def _load_prompt(path: Path) -> str:
+    if not path.is_file():
+        raise FileNotFoundError(f"Prompt file not found: {path}")
+    raw = path.read_text(encoding="utf-8").strip()
 
-        if total_words <= self.max_words:
-            return chunks
+    # The existing prompt files are stored like escaped string literals. Decode
+    # only the known escapes so Vietnamese characters are preserved verbatim.
+    if raw.startswith(('"', "'")):
+        quote = raw[0]
+        raw = raw[1:]
+        if raw.endswith(quote) and not raw.endswith("\\" + quote):
+            raw = raw[:-1]
+    return (
+        raw.replace("\\r\\n", "\n")
+        .replace("\\n", "\n")
+        .replace("\\t", "\t")
+        .replace('\\"', '"')
+        .replace("\\'", "'")
+    )
 
-        logger.warning(
-            f"[!] Context vượt budget: {total_words} từ > {self.max_words} từ. Đang trim..."
-        )
 
-        kept = []
-        running_total = 0
-        for chunk in chunks:
-            w = count_words(chunk.raw_text)
-            if running_total + w <= self.max_words:
-                kept.append(chunk)
-                running_total += w
-            else:
-                break
+def _append_prompt(prompt: str, content: str) -> str:
+    """Append source content without adding or rewriting any prompt sentence."""
+    separator = "" if prompt.endswith("\n") else "\n"
+    return f"{prompt}{separator}{content}"
 
-        logger.info(f"[*] Sau trim: {len(kept)}/{len(chunks)} chunks ({running_total} từ)")
-        return kept
+
+def _context_line(item) -> str:
+    if hasattr(item, "to_context_string"):
+        return item.to_context_string()
+    return str(item)
 
 
 class LLMService:
-    """
-    Tầng tích hợp Gemini API với:
-    - Fault-tolerant Auto-Retry (Exponential Backoff)
-    - Token Budget Management
-    - Prompt file loading
-    """
+    def __init__(self, settings: Settings | None = None, client=None):
+        self.settings = settings or Settings.from_env()
+        self.model_name = self.settings.llm_summary_model  # Legacy callers.
+        self.summary_model = self.settings.llm_summary_model
+        self.chat_model = self.settings.llm_chat_model
+        self.summary_prompt = _load_prompt(PROJECT_ROOT / "prompts" / "summary_prompt.txt")
+        self.meeting_summary_prompt = _load_prompt(
+            PROJECT_ROOT / "prompts" / "meeting_summary_prompt.txt"
+        )
+        self.chat_prompt = _load_prompt(PROJECT_ROOT / "prompts" / "chat_prompt.txt")
+        if client is not None:
+            self.client = client
+        elif self.settings.llm_timeout_seconds > 0:
+            self.client = genai.Client(
+                api_key=self.settings.require_gemini_key(),
+                http_options=types.HttpOptions(
+                    timeout=self.settings.llm_timeout_seconds * 1000
+                ),
+            )
+        else:
+            # Match the original project: use the SDK's default transport timeout.
+            self.client = genai.Client(api_key=self.settings.require_gemini_key())
 
-    def __init__(self):
-        api_key = os.getenv("GEMINI_API_KEY")
-        if not api_key:
-            raise ValueError("[!] Chưa cấu hình GEMINI_API_KEY trong file .env")
+    @staticmethod
+    def _status_code(exc: Exception) -> int | None:
+        for name in ("status_code", "code"):
+            value = getattr(exc, name, None)
+            if callable(value):
+                try:
+                    value = value()
+                except TypeError:
+                    value = None
+            try:
+                if value is not None:
+                    return int(value)
+            except (TypeError, ValueError):
+                pass
+        return None
 
-        self.client = genai.Client(api_key=api_key)
-        self.model_name = MODEL_NAME
-        self.budget_manager = TokenBudgetManager()
-        self.prompt_text = self._load_prompt_text(PROMPT_PATH)
+    def _is_retryable(self, exc: Exception) -> bool:
+        status = self._status_code(exc)
+        if status in RETRYABLE_STATUS_CODES:
+            return True
+        message = str(exc).lower()
+        return any(
+            marker in message
+            for marker in (
+                "timeout",
+                "timed out",
+                "temporarily unavailable",
+                "connection reset",
+            )
+        )
 
-        print(f"[*] LLMService khởi tạo thành công (model: {self.model_name})")
+    def _thinking_config(self) -> types.ThinkingConfig | None:
+        level = self.settings.llm_thinking_level
+        if level == "default":
+            return None
+        return types.ThinkingConfig(
+            thinking_level=getattr(types.ThinkingLevel, level.upper()),
+            include_thoughts=False,
+        )
 
-    # ============================================================
-    # INTERNAL HELPERS
-    # ============================================================
-
-    def _load_prompt_text(self, path: str) -> str:
-        """Load prompt template từ file, hỗ trợ nội dung dạng string có escape."""
-        if not os.path.exists(path):
-            raise FileNotFoundError(f"[!] Không tìm thấy prompt file: {path}")
-
-        with open(path, "r", encoding="utf-8") as f:
-            raw = f.read().strip()
-
-        # Strip wrapping quotes if file stores a quoted string.
-        if len(raw) >= 2 and raw[0] == raw[-1] and raw[0] in {"\"", "'"}:
-            raw = raw[1:-1]
-
-        # Unescape common sequences like \n to real newlines.
-        if "\\" in raw:
-            raw = raw.encode("utf-8").decode("unicode_escape")
-
-        return raw
-
-    def _build_prompt(self, context: str, query: Optional[str] = None) -> str:
-        """Kết hợp prompt template với context và câu hỏi (nếu có)."""
-        prompt = self.prompt_text
-        if not prompt.endswith("\n"):
-            prompt += "\n"
-        prompt += context
-        if query:
-            prompt += f"\n\nUser Query:\n{query}"
-        return prompt
-
-    def _call_api_with_retry(
+    def _config(
         self,
+        system_instruction: str,
+        temperature: float,
+        max_output_tokens: int | None,
+    ) -> types.GenerateContentConfig:
+        return types.GenerateContentConfig(
+            system_instruction=system_instruction or None,
+            temperature=temperature,
+            max_output_tokens=max_output_tokens or None,
+            response_mime_type="text/plain",
+            thinking_config=self._thinking_config(),
+        )
+
+    @staticmethod
+    def _finish_reason(response) -> str | None:
+        candidates = getattr(response, "candidates", None) or []
+        if not candidates:
+            return None
+        reason = getattr(candidates[0], "finish_reason", None)
+        if reason is None:
+            return None
+        return str(getattr(reason, "name", None) or getattr(reason, "value", None) or reason)
+
+    @classmethod
+    def _ensure_not_truncated(cls, response) -> None:
+        reason = cls._finish_reason(response)
+        if reason and "MAX_TOKENS" in reason.upper():
+            raise RuntimeError(
+                "Gemini stopped at MAX_TOKENS; no incomplete summary was saved. "
+                "Increase LLM_SUMMARY_MAX_OUTPUT_TOKENS in .env."
+            )
+
+    def _generate(
+        self,
+        model: str,
         contents: str,
-        system_instruction: str = "",
-        temperature: float = 0.1,
-        response_mime_type: str = "text/plain",
+        system_instruction: str,
+        temperature: float,
+        max_output_tokens: int | None,
     ) -> str:
-        """
-        Gọi Gemini API với Auto-Retry Exponential Backoff.
-        Lỗi 429 (Quota) / 503 (Overload): đợi 5s → 10s → 20s rồi retry.
-        """
-        wait = RETRY_BASE_SECONDS
-        for attempt in range(1, MAX_RETRIES + 1):
+        wait = self.settings.llm_retry_base_seconds
+        for attempt in range(1, self.settings.llm_max_retries + 1):
             try:
                 response = self.client.models.generate_content(
-                    model=self.model_name,
+                    model=model,
                     contents=contents,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                        temperature=temperature,
-                        response_mime_type=response_mime_type,
+                    config=self._config(
+                        system_instruction, temperature, max_output_tokens
                     ),
                 )
-                if response.text:
-                    return response.text
-                raise ValueError("Gemini trả về phản hồi rỗng")
-
-            except Exception as e:
-                error_str = str(e)
-                is_retryable = any(
-                    str(code) in error_str for code in RETRYABLE_ERRORS
-                )
-
-                if is_retryable and attempt < MAX_RETRIES:
-                    logger.warning(
-                        f"[!] Lỗi API (attempt {attempt}/{MAX_RETRIES}): {e}. "
-                        f"Đợi {wait}s..."
-                    )
-                    print(
-                        f"[!] Lỗi API (attempt {attempt}/{MAX_RETRIES}): {e}. "
-                        f"Retry sau {wait}s..."
-                    )
-                    time.sleep(wait)
-                    wait *= 2  # Exponential Backoff: 5 → 10 → 20
-                else:
+                self._ensure_not_truncated(response)
+                text = getattr(response, "text", None)
+                if not text:
+                    raise RuntimeError("Gemini returned an empty response")
+                return text.strip()
+            except Exception as exc:
+                if not self._is_retryable(exc) or attempt >= self.settings.llm_max_retries:
                     raise
+                logger.warning(
+                    "Gemini request failed (%s/%s): %s; retrying in %.1fs",
+                    attempt,
+                    self.settings.llm_max_retries,
+                    exc,
+                    wait,
+                )
+                time.sleep(wait)
+                wait *= 2
+        raise RuntimeError("Gemini request failed")
 
-        raise RuntimeError(f"API thất bại sau {MAX_RETRIES} lần retry")
-
-    def _call_api_stream_with_retry(
+    def _generate_stream(
         self,
+        model: str,
         contents: str,
-        system_instruction: str = "",
-        temperature: float = 0.1,
-        response_mime_type: str = "text/plain",
-    ) -> Iterator[str]:
-        """
-        Gọi Gemini API với streaming. Chỉ retry nếu lỗi xảy ra trước khi stream bắt đầu.
-        """
-        wait = RETRY_BASE_SECONDS
-        for attempt in range(1, MAX_RETRIES + 1):
+        system_instruction: str,
+        temperature: float,
+        max_output_tokens: int | None,
+        on_event: EventCallback | None = None,
+    ) -> str:
+        wait = self.settings.llm_retry_base_seconds
+        for attempt in range(1, self.settings.llm_max_retries + 1):
+            pieces: list[str] = []
             yielded_any = False
+            last_response = None
             try:
                 stream = self.client.models.generate_content_stream(
-                    model=self.model_name,
+                    model=model,
                     contents=contents,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                        temperature=temperature,
-                        response_mime_type=response_mime_type,
+                    config=self._config(
+                        system_instruction, temperature, max_output_tokens
                     ),
                 )
                 for chunk in stream:
+                    last_response = chunk
+                    text = getattr(chunk, "text", None)
+                    if text:
+                        if not yielded_any and on_event:
+                            on_event("first_token")
+                        yielded_any = True
+                        pieces.append(text)
+                self._ensure_not_truncated(last_response)
+                result = "".join(pieces).strip()
+                if not result:
+                    raise RuntimeError("Gemini returned an empty response")
+                return result
+            except Exception as exc:
+                if (
+                    yielded_any
+                    or not self._is_retryable(exc)
+                    or attempt >= self.settings.llm_max_retries
+                ):
+                    raise
+                if on_event:
+                    on_event(f"retry:{attempt}")
+                logger.warning("Gemini stream failed: %s; retrying in %.1fs", exc, wait)
+                time.sleep(wait)
+                wait *= 2
+        raise RuntimeError("Gemini stream failed")
+
+    def _generate_stream_iter(
+        self,
+        model: str,
+        contents: str,
+        system_instruction: str,
+        temperature: float,
+        max_output_tokens: int | None,
+    ) -> Iterator[str]:
+        """Yield model text immediately; retry only before the first token."""
+        wait = self.settings.llm_retry_base_seconds
+        for attempt in range(1, self.settings.llm_max_retries + 1):
+            yielded_any = False
+            last_response = None
+            try:
+                stream = self.client.models.generate_content_stream(
+                    model=model,
+                    contents=contents,
+                    config=self._config(
+                        system_instruction, temperature, max_output_tokens
+                    ),
+                )
+                for chunk in stream:
+                    last_response = chunk
                     text = getattr(chunk, "text", None)
                     if text:
                         yielded_any = True
                         yield text
+                self._ensure_not_truncated(last_response)
+                if not yielded_any:
+                    raise RuntimeError("Gemini returned an empty response")
                 return
+            except Exception as exc:
+                if (
+                    yielded_any
+                    or not self._is_retryable(exc)
+                    or attempt >= self.settings.llm_max_retries
+                ):
+                    raise
+                logger.warning("Gemini stream failed: %s; retrying in %.1fs", exc, wait)
+                time.sleep(wait)
+                wait *= 2
+        raise RuntimeError("Gemini stream failed")
 
-            except Exception as e:
-                error_str = str(e)
-                is_retryable = any(
-                    str(code) in error_str for code in RETRYABLE_ERRORS
+    @staticmethod
+    def _clean_markdown(text: str) -> str:
+        stripped = text.strip()
+        if stripped.startswith("```markdown") and stripped.endswith("```"):
+            stripped = stripped[len("```markdown") : -3].strip()
+        elif stripped.startswith("```") and stripped.endswith("```"):
+            stripped = stripped[3:-3].strip()
+        return stripped
+
+    @staticmethod
+    def _batch_context(items: Sequence, max_tokens: int) -> list[list]:
+        batches: list[list] = []
+        current: list = []
+        current_tokens = 0
+        for item in items:
+            item_tokens = estimate_tokens(_context_line(item))
+            if current and current_tokens + item_tokens > max_tokens:
+                batches.append(current)
+                current = []
+                current_tokens = 0
+            current.append(item)
+            current_tokens += item_tokens
+        if current:
+            batches.append(current)
+        return batches
+
+    def summarize(
+        self,
+        chunks: Sequence,
+        document_id: str,
+        on_event: EventCallback | None = None,
+    ) -> tuple[str, str]:
+        if not chunks:
+            raise ValueError("Summary requires at least one transcript chunk")
+        full_context = "\n".join(_context_line(item) for item in chunks)
+
+        if estimate_tokens(full_context) <= self.settings.summary_direct_max_input_tokens:
+            if on_event:
+                on_event("request_sent:direct")
+            result = self._generate_stream(
+                model=self.summary_model,
+                contents=_append_prompt(self.summary_prompt, full_context),
+                system_instruction="",
+                temperature=self.settings.llm_temperature_summary,
+                max_output_tokens=self.settings.llm_summary_max_output_tokens,
+                on_event=on_event,
+            )
+            return self._clean_markdown(result), "direct"
+
+        batches = self._batch_context(chunks, self.settings.summary_map_batch_tokens)
+        partials: list[str] = []
+        for index, batch in enumerate(batches, start=1):
+            if on_event:
+                on_event(f"map:{index}/{len(batches)}")
+            partials.append(
+                self._generate(
+                    model=self.summary_model,
+                    contents=_append_prompt(
+                        self.summary_prompt,
+                        "\n".join(_context_line(item) for item in batch),
+                    ),
+                    system_instruction="",
+                    temperature=self.settings.llm_temperature_summary,
+                    max_output_tokens=self.settings.llm_summary_max_output_tokens,
                 )
-
-                if yielded_any:
-                    raise
-                if is_retryable and attempt < MAX_RETRIES:
-                    logger.warning(
-                        f"[!] Lỗi API (attempt {attempt}/{MAX_RETRIES}): {e}. "
-                        f"Đợi {wait}s..."
-                    )
-                    print(
-                        f"[!] Lỗi API (attempt {attempt}/{MAX_RETRIES}): {e}. "
-                        f"Retry sau {wait}s..."
-                    )
-                    time.sleep(wait)
-                    wait *= 2
-                else:
-                    raise
-
-        raise RuntimeError(f"API thất bại sau {MAX_RETRIES} lần retry")
-
-    def _build_context_block(self, chunks: List[MeetingChunk]) -> str:
-        """Build chuỗi context từ danh sách chunks, kèm timestamp."""
-        lines = []
-        for c in chunks:
-            lines.append(c.to_context_string())
-        return "\n".join(lines)
-
-    # ============================================================
-    # PUBLIC API
-    # ============================================================
-
-    def analyze_meeting(
-        self,
-        chunks: Optional[List[MeetingChunk]] = None,
-        full_text: Optional[str] = None,
-        meeting_id: str = "unknown",
-    ) -> dict:
-        """
-        Phân tích toàn bộ cuộc họp → RAW output.
-
-        Args:
-            chunks   : Danh sách MeetingChunk (ưu tiên)
-            full_text: Văn bản thô (fallback nếu không có chunks)
-            meeting_id: ID cuộc họp
-
-        Returns:
-            dict với keys: meeting_id, result
-        """
-        print(f"[*] LLM đang phân tích meeting '{meeting_id}'...")
-
-        # Chuẩn bị context
-        if chunks:
-            chunks = self.budget_manager.trim_chunks(chunks)
-            context = self._build_context_block(chunks)
-            print(f"[*] Phân tích từ {len(chunks)} chunks ({count_words(context)} từ)")
-        elif full_text:
-            context = full_text
-            print(f"[*] Phân tích từ full_text ({count_words(context)} từ)")
-        else:
-            raise ValueError("Cần cung cấp chunks hoặc full_text")
-
-        prompt = self._build_prompt(context)
-
-        try:
-            raw = self._call_api_with_retry(
-                contents=prompt,
-                system_instruction="",
-                temperature=0.1,
-                response_mime_type="text/plain",
             )
-            print("[+] Phân tích xong.")
-            return {
-                "meeting_id": meeting_id,
-                "result": raw,
-            }
 
-        except Exception as e:
-            logger.error(f"[!] Lỗi analyze_meeting: {e}")
-            return {
-                "meeting_id": meeting_id,
-                "result": f"Lỗi hệ thống: {str(e)}",
-            }
-
-    def chat(
-        self,
-        query: str,
-        context_chunks: List[MeetingChunk],
-        conversation_history: Optional[List[dict]] = None,
-    ) -> str:
-        """
-        Q&A với AI dựa trên context chunks đã retrieve.
-
-        Args:
-            query             : Câu hỏi của người dùng
-            context_chunks    : Chunks liên quan (từ hybrid_retrieve)
-            conversation_history: Lịch sử hội thoại [{"role": "user/model", "text": "..."}]
-
-        Returns:
-            Câu trả lời dạng text
-        """
-        if not context_chunks:
-            return "Không tìm thấy thông tin liên quan đến câu hỏi của bạn trong cuộc họp này."
-
-        # Trim context nếu cần
-        context_chunks = self.budget_manager.trim_chunks(context_chunks)
-        context = self._build_context_block(context_chunks)
-
-        # Build history block nếu có
-        if conversation_history:
-            lines = []
-            for msg in conversation_history[-6:]:  # Giữ 6 lượt gần nhất
-                role = "Người dùng" if msg.get("role") == "user" else "AI"
-                lines.append(f"{role}: {msg.get('text', '')}")
-            context += "\n\nConversation History:\n" + "\n".join(lines)
-
-        prompt = self._build_prompt(context, query=query)
-
-        try:
-            answer = self._call_api_with_retry(
-                contents=prompt,
-                system_instruction="",
-                temperature=0.3,
-                response_mime_type="text/plain",
+        reduction_round = 0
+        while estimate_tokens("\n\n".join(partials)) > self.settings.summary_direct_max_input_tokens:
+            reduction_round += 1
+            partial_batches = self._batch_context(
+                partials, self.settings.summary_map_batch_tokens
             )
-            return answer.strip()
+            if on_event:
+                on_event(f"reduce_round:{reduction_round}/{len(partial_batches)}")
+            condensed: list[str] = []
+            for partial_batch in partial_batches:
+                condensed.append(
+                    self._generate(
+                        model=self.summary_model,
+                        contents=_append_prompt(
+                            self.summary_prompt, "\n\n".join(partial_batch)
+                        ),
+                        system_instruction="",
+                        temperature=self.settings.llm_temperature_summary,
+                        max_output_tokens=self.settings.llm_summary_max_output_tokens,
+                    )
+                )
+            if len(condensed) >= len(partials):
+                # Avoid a non-shrinking loop if one model response itself exceeds the budget.
+                partials = condensed
+                break
+            partials = condensed
 
-        except Exception as e:
-            logger.error(f"[!] Lỗi chat: {e}")
-            return f"Xin lỗi, đã xảy ra lỗi khi xử lý câu hỏi: {str(e)}"
+        if on_event:
+            on_event("request_sent:reduce")
+        reduced = self._generate_stream(
+            model=self.summary_model,
+            contents=_append_prompt(self.summary_prompt, "\n\n".join(partials)),
+            system_instruction="",
+            temperature=self.settings.llm_temperature_summary,
+            max_output_tokens=self.settings.llm_summary_max_output_tokens,
+            on_event=on_event,
+        )
+        return self._clean_markdown(reduced), "map_reduce"
 
-    def chat_stream(
-        self,
-        query: str,
-        context_chunks: List[MeetingChunk],
-        conversation_history: Optional[List[dict]] = None,
-    ) -> Iterator[str]:
-        """Stream câu trả lời để client nhận được ngay khi model sinh token."""
-        if not context_chunks:
-            yield "Không tìm thấy thông tin liên quan đến câu hỏi của bạn trong cuộc họp này."
+    def summarize_stream(self, chunks: Sequence, document_id: str) -> Iterator[str]:
+        """Stream the final Markdown summary while keeping map steps internal."""
+        if not chunks:
+            raise ValueError("Summary requires at least one transcript chunk")
+        full_context = "\n".join(_context_line(item) for item in chunks)
+        if estimate_tokens(full_context) <= self.settings.summary_direct_max_input_tokens:
+            yield from self._generate_stream_iter(
+                model=self.summary_model,
+                contents=_append_prompt(self.meeting_summary_prompt, full_context),
+                system_instruction="",
+                temperature=self.settings.llm_temperature_summary,
+                max_output_tokens=self.settings.llm_summary_max_output_tokens,
+            )
             return
 
-        context_chunks = self.budget_manager.trim_chunks(context_chunks)
-        context = self._build_context_block(context_chunks)
-
-        if conversation_history:
-            lines = []
-            for msg in conversation_history[-6:]:
-                role = "Người dùng" if msg.get("role") == "user" else "AI"
-                lines.append(f"{role}: {msg.get('text', '')}")
-            context += "\n\nConversation History:\n" + "\n".join(lines)
-
-        prompt = self._build_prompt(context, query=query)
-
-        try:
-            for piece in self._call_api_stream_with_retry(
-                contents=prompt,
+        batches = self._batch_context(chunks, self.settings.summary_map_batch_tokens)
+        partials = [
+            self._generate(
+                model=self.summary_model,
+                contents=_append_prompt(
+                    self.meeting_summary_prompt,
+                    "\n".join(_context_line(item) for item in batch),
+                ),
                 system_instruction="",
-                temperature=0.3,
-                response_mime_type="text/plain",
-            ):
-                yield piece
-        except Exception as e:
-            logger.error(f"[!] Lỗi chat stream: {e}")
-            yield f"Xin lỗi, đã xảy ra lỗi khi xử lý câu hỏi: {str(e)}"
+                temperature=self.settings.llm_temperature_summary,
+                max_output_tokens=self.settings.llm_summary_max_output_tokens,
+            )
+            for batch in batches
+        ]
+        while estimate_tokens("\n\n".join(partials)) > self.settings.summary_direct_max_input_tokens:
+            partial_batches = self._batch_context(
+                partials, self.settings.summary_map_batch_tokens
+            )
+            condensed = [
+                self._generate(
+                    model=self.summary_model,
+                    contents=_append_prompt(self.meeting_summary_prompt, "\n\n".join(batch)),
+                    system_instruction="",
+                    temperature=self.settings.llm_temperature_summary,
+                    max_output_tokens=self.settings.llm_summary_max_output_tokens,
+                )
+                for batch in partial_batches
+            ]
+            partials = condensed
+            if len(condensed) == 1:
+                break
+
+        yield from self._generate_stream_iter(
+            model=self.summary_model,
+            contents=_append_prompt(self.meeting_summary_prompt, "\n\n".join(partials)),
+            system_instruction="",
+            temperature=self.settings.llm_temperature_summary,
+            max_output_tokens=self.settings.llm_summary_max_output_tokens,
+        )
+
+    def analyze_meeting(
+        self, chunks=None, full_text=None, meeting_id: str = "unknown"
+    ) -> dict:
+        if chunks:
+            markdown, strategy = self.summarize(chunks, meeting_id)
+        elif full_text:
+            markdown, strategy = self.summarize([full_text], meeting_id)
+        else:
+            raise ValueError("chunks or full_text is required")
+        return {"meeting_id": meeting_id, "result": markdown, "strategy": strategy}
+
+    def _chat_contents(self, query: str, context_chunks: Sequence, history=None) -> str:
+        context = "\n".join(_context_line(item) for item in context_chunks)
+        history_lines: list[str] = []
+        for message in (history or [])[-6:]:
+            role = "User" if message.get("role") == "user" else "Assistant"
+            history_lines.append(f"{role}: {message.get('text', '')}")
+        history_block = "\n".join(history_lines) or "(none)"
+        return (
+            f"Transcript evidence:\n{context}\n\n"
+            f"Recent conversation:\n{history_block}\n\n"
+            f"Question:\n{query}"
+        )
+
+    def chat(self, query: str, context_chunks: Sequence, conversation_history=None) -> str:
+        if not context_chunks:
+            return "Không tìm thấy đoạn transcript phù hợp để trả lời câu hỏi này."
+        return self._generate(
+            model=self.chat_model,
+            contents=self._chat_contents(query, context_chunks, conversation_history),
+            system_instruction=self.chat_prompt,
+            temperature=self.settings.llm_temperature_chat,
+            max_output_tokens=self.settings.llm_chat_max_output_tokens,
+        )
+
+    def chat_stream(
+        self, query: str, context_chunks: Sequence, conversation_history=None
+    ) -> Iterator[str]:
+        if not context_chunks:
+            yield "Không tìm thấy đoạn transcript phù hợp để trả lời câu hỏi này."
+            return
+        stream = self.client.models.generate_content_stream(
+            model=self.chat_model,
+            contents=self._chat_contents(query, context_chunks, conversation_history),
+            config=self._config(
+                self.chat_prompt,
+                self.settings.llm_temperature_chat,
+                self.settings.llm_chat_max_output_tokens,
+            ),
+        )
+        for chunk in stream:
+            text = getattr(chunk, "text", None)
+            if text:
+                yield text

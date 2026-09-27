@@ -17,4 +17,4 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
 
 COPY . .
 
-CMD ["python3", "stt_engine.py"]
+CMD ["uvicorn", "meeting_api:app", "--host", "0.0.0.0", "--port", "8090"]

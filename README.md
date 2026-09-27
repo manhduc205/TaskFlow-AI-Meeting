@@ -143,3 +143,16 @@ Tài liệu API Swagger UI có sẵn tại: `http://localhost:8000/docs`
 ## 📄 License
 Tài liệu và mã nguồn được phát triển riêng cho dự án **TaskFlow AI**.
 
+# Meeting Platform integration
+
+The repository now exposes two separate processes for Meeting Platform:
+
+```bash
+# FIFO background transcription worker
+python worker.py
+
+# Internal summary and RAG chat streaming API
+uvicorn meeting_api:app --host 0.0.0.0 --port 8090
+```
+
+The worker consumes `recording.ai.transcript.request.v1` with `prefetch=1`, reads/writes artifacts directly in MinIO, and publishes `transcript.completed` or `transcript.failed`. The API requires `X-Internal-Token`, reads the saved transcript, streams summary/chat text, and writes the completed summary as Markdown to MinIO.

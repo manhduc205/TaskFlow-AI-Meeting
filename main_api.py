@@ -244,15 +244,15 @@ async def ingest_youtube_meeting(
         logger.info(f"[*] Đang cào transcript YouTube từ URL: {request.url}")
 
         # Gọi helper trích xuất YouTube Transcript
-        from utils.ytb_text_utils import get_youtube_transcript_as_text
-        youtube_text_content = get_youtube_transcript_as_text(request.url)
+        from utils.ytb_text_utils import get_youtube_transcript_as_segments
+        youtube_document = get_youtube_transcript_as_segments(
+            request.url, document_id=meeting_id
+        )
 
         # Đẩy thẳng chuỗi văn bản vào RAGEngine
-        chunks = rag_engine.ingest(
+        chunks = rag_engine.ingest_segments(
             meeting_id=meeting_id,
-            transcript_path=None,
-            segments_json_path=None,
-            raw_text=youtube_text_content,
+            segments=youtube_document.segments,
             force_reingest=request.force_reingest,
         )
 

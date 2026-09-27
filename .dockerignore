@@ -2,6 +2,12 @@
 models/
 test_audio/
 venv/
+chroma_db/
+transcript/
+summary_results/
+tmp_uploads/
+.env
+.idea/
 .git/
 __pycache__/
 *.pyc
